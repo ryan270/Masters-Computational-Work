@@ -1,19 +1,19 @@
 ###META ANALYSIS SCRIPT
 
 #This script will provide an in depth analysis of microbial data previously analyzed in
-#...QIIME2. This script will render multiple plots that will elucidate the change in 
+#...QIIME2. This script will render multiple plots that will elucidate the change in
 #...diversity on amphibians between regions along the Pacific Coast
 
 ##LOAD PACKAGES, DATA, AND DIRECTORY
 #Set Directory and Load required Packages
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
-project_packages <- c('phyloseq', 'qiime2R','DESeq2', 'phangorn', 'grid', 'ggplot2','DECIPHER', 
+project_packages <- c('phyloseq', 'qiime2R','DESeq2', 'phangorn', 'grid', 'ggplot2','DECIPHER',
                       'gridExtra', 'vegan', 'wesanderson', 'dplyr', 'ggmap')
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
 amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza", taxonomy = "meta_taxonomy.qza",
-                                          tree = "meta_rootd.qza", metadata="merged_metadata.txt"), 
+                                          tree = "meta_rootd.qza", metadata="merged_metadata.txt"),
                           !is.na(Order) & !Order %in% c("", "uncharacterized"))
 
 #Very Important
@@ -25,13 +25,13 @@ the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50",
 ##TAXA BARPLOT: Displays only the top OTUS for Each Region
 #Create Database of OTU's w/ 1% Category
 txs <- psmelt(tax_glom(transform_sample_counts(amphib.obj, function(x) x / sum(x) ), taxrank = 'Phylum'))
-txs$Phylum <- as.character(txs$Phylum) 
+txs$Phylum <- as.character(txs$Phylum)
 txs$Phylum[txs$Abundance < 0.01] <- "< 1% Abundance"
 
 #Re-Order Levels
-txs$Phylum <- factor(txs$Phylum, 
-                          levels = c("Acidobacteria", "Actinobacteria", "Armatimonadetes", "Bacteroidetes", 
-                                     "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", 
+txs$Phylum <- factor(txs$Phylum,
+                          levels = c("Acidobacteria", "Actinobacteria", "Armatimonadetes", "Bacteroidetes",
+                                     "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres",
                                      "Elusimicrobia", "Fibrobacteres", "Firmicutes", "Fusobacteria",
                                      "Gemmatimonadetes", "Lentisphaerae", "Nitrospirae","Planctomycetes",
                                      "Proteobacteria","TM7", "Verrucomicrobia", "WS3", "[Thermi]",
@@ -48,15 +48,15 @@ ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
   ylab('Relative Abunance')+
   theme(legend.position= c(0.67, 0.17), legend.key.height = unit(0.7, 'cm'), legend.key.width = unit(1.7, 'cm'),
         axis.title = element_text(size = 16, family = "Georgia"), axis.text.x = element_blank(),
-        axis.ticks.x = element_blank(), axis.title.x = element_blank(), 
+        axis.ticks.x = element_blank(), axis.title.x = element_blank(),
         legend.title = element_text(size = 14, family = "Georgia"),
         legend.text = element_text(size = 11, family = "Georgia"),
-        panel.background = element_rect(fill = "gray98"), panel.grid.major = element_blank())+ 
+        panel.background = element_rect(fill = "gray98"), panel.grid.major = element_blank())+
   guides(fill=guide_legend(nrow=6, title.position = 'top'),
     theme(element_text(family = "Georgia")))
 
 #----------------------------------------------------------------#
-##ALPHA DIVERSITY: plot and compare species richness and evenness 
+##ALPHA DIVERSITY: plot and compare species richness and evenness
 #Calculate Evenness & Create DF with Evenness
 alphas <- estimate_richness(amphib.obj, measure = c("Chao1", "Shannon", "Simpson"))
 alphas$Evenness <- 0
@@ -76,12 +76,12 @@ bartlett.test(Evenness ~ State_Region, data = asa) #FAILED: p = 0.0049
 adonis(Evenness ~ State_Region, data = asa, permutations = 999) #Not even: p = 0.001
 
 #Plot Facet-Wrapped Boxpolot of Richness and Evenness
-alpha2 <- tidyr::gather(data.frame(alphas, sample_data(amphib.obj)), 
+alpha2 <- tidyr::gather(data.frame(alphas, sample_data(amphib.obj)),
                         key = "Measure", value = "Value", Shannon, Chao1, Simpson, Evenness)
 ggplot(data = alpha2, aes(x = State_Region, y = Value, color = Order))+
   labs(color = "Host", x = "State Region")+
   facet_wrap(~Measure, scale = "free", nrow = 1)+
-  geom_jitter(width = 0.2)+ 
+  geom_jitter(width = 0.2)+
   stat_summary(aes(y = Value,group=1), fun=mean, colour="#899DA4", geom="line",group=1)+
   scale_color_manual(values= c('#EE6A50', '#F5CDB4', '#9A8822'))+
   theme(axis.text.x = element_text(angle = 70, hjust = 1, size = 10,
@@ -95,7 +95,7 @@ ggplot(data = alpha2, aes(x = State_Region, y = Value, color = Order))+
 
 #----------------------------------------------------------------#
 ##BETA DIVERSITY AND DISTANCE: calculate PCA's with multiple models
-#Includes -- The Plot -- 
+#Includes -- The Plot --
 #Omit user-defined distance methods and unapplicable methods
 dist_models <- unlist(distanceMethodList)[-c(2,3,9,12,16,20,27,29,35,42,43,47)]
 
@@ -187,7 +187,7 @@ cac$zone <- as.character(0, quote = FALSE)
 for(i in 1:nrow(cac)){
         srrs <- c("placer", "el dorado", "madera")
         ccm <- c("san francisco", "alameda", "santa cruz", "monterey", "contra costa")
-        scal <- c("san diego") 
+        scal <- c("san diego")
         ncal <- c("mendocino", "humboldt", "siskiyou", "shasta", "trinity",
                   "del norte", "sonoma", "trinity")
         if (is.element(cac$subregion[i], srrs)){
@@ -205,7 +205,7 @@ for(i in 1:nrow(cac)){
 ggplot(data = cali, mapping = aes(x = long, y = lat, group = group)) +
     coord_fixed(1.3) +
     geom_polygon(color = "black", fill = "gray85") +
-    geom_polygon(data = cac, aes(fill = zone), color = "gray90") + 
+    geom_polygon(data = cac, aes(fill = zone), color = "gray90") +
     scale_fill_manual(values = c("gray85", "#FDDDA0", "#74A089", "#EE6A50", "#F8AFA8"),
                       name = "State Regions",
                       breaks = c("0", "Coastal California", "Northern California",
@@ -242,7 +242,7 @@ geoMeans = apply(counts(da), 1, gm_mean)
 da <- estimateSizeFactors(da, geoMeans = geoMeans)
 da <- DESeq(da, fitType="local")
 
-#For loop that Compares the significant OTU abundance differences by Region 
+#For loop that Compares the significant OTU abundance differences by Region
 otu.list <- vector("list", length = 6)
 regs <- c(1,2,3,4,5,7)
 for (i in regs){
@@ -255,7 +255,7 @@ for (i in regs){
   #plot
   o = NULL
   o = ggplot(res_sig, aes(x = Order, y = log2FoldChange))+
-    geom_col(aes(fill = Phylum), width = 1)+ 
+    geom_col(aes(fill = Phylum), width = 1)+
     scale_fill_manual(values = wes_palette("Royal2", 12, type = "continuous"))+
     ggtitle(paste("Sierra Nevada vs ", altrg, sep = ""))+
     theme(plot.title = element_text(family = "Georgia"),
@@ -266,12 +266,12 @@ for (i in regs){
           legend.position = c(0.65,0.85), legend.title = element_blank(),
           legend.text = element_text(size = 9), legend.key.size = unit(0.3, 'cm'))+
     guides(fill=guide_legend(nrow=6))
-    
+
   otu.list[[i]] <- o
 }
 
 #Plot the OTU abundances
-grid.arrange(grobs = list(otu.list[[1]], otu.list[[2]], 
+grid.arrange(grobs = list(otu.list[[1]], otu.list[[2]],
                           otu.list[[3]], otu.list[[4]], otu.list[[5]], otu.list [[7]]), ncol = 3,
              bottom =textGrob("Order", gp=gpar(fontsize=22, fontfamily = "Georgia")),
              left = textGrob("log2FoldChange", rot = 90, vjust = 1, gp=gpar(fontsize = 22,
