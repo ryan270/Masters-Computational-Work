@@ -20,11 +20,6 @@ the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50",
 
 #----------------------------------------------------------------#
 #----------------------------------------------------------------#
-##FILTER RARE SAMPLES
-#Need to filter samples with high Burkholderlares / other extremes
-
-
-#----------------------------------------------------------------#
 ##ALPHA DIVERSITY: plot and compare species richness and evenness
 #Calculate Evenness & Create DF with Evenness
 alphas <- estimate_richness(frgs, measure = c("Chao1", "Shannon", "Simpson"))
