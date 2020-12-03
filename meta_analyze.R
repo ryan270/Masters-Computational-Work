@@ -19,9 +19,9 @@ amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza", taxo
 #Very Important
 the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
 
+#----------------------------------------------------------------#
+#----------------------------------------------------------------#
 
-#----------------------------------------------------------------#
-#----------------------------------------------------------------#
 ##TAXA BARPLOT: Displays only the top OTUS for Each Region
 #Create Database of OTU's w/ 1% Category
 txs <- psmelt(tax_glom(transform_sample_counts(amphib.obj, function(x) x / sum(x) ), taxrank = 'Phylum'))
