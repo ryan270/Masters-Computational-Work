@@ -29,9 +29,9 @@ ggplot(alpha.meta, aes(x = State_Region, y = shannon))+
   ylab('Shannon Diversity')+
   labs(title = "Meta Shannon",
        subtitle = "Colored by Species")+
-  theme(plot.title = element_text(size = 28, face = "bold"))+
-  theme(plot.subtitle = element_text(size = 22, face = "italic"))+
-  theme(axis.title = element_text(size = 16))
+  theme(plot.title = element_text(size = 28, face = "bold"),
+        plot.subtitle = element_text(size = 22, face = "italic"),
+        axis.title = element_text(size = 16))
   #labs(color = "Species")
 
 ##BETA DIVERSITY
