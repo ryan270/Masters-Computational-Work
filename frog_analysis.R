@@ -13,7 +13,7 @@ amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza", taxo
                           !is.na(Order) & !Order %in% c("", "uncharacterized"))
 
 #Subset just salamanders
-sals <- subset_samples(amphib.obj, Order !="Anura")
+frgs <- subset_samples(amphib.obj, Order =="Anura")
 
 #Very Important
 the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
@@ -22,7 +22,7 @@ the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50",
 #----------------------------------------------------------------#
 ##ALPHA DIVERSITY: plot and compare species richness and evenness
 #Calculate Evenness & Create DF with Evenness
-alphas <- estimate_richness(sals, measure = c("Chao1", "Shannon", "Simpson"))
+alphas <- estimate_richness(frgs, measure = c("Chao1", "Shannon", "Simpson"))
 alphas$Evenness <- 0
 for(i in 1:nrow(alphas)){
   H <- alphas$Shannon
@@ -32,7 +32,7 @@ for(i in 1:nrow(alphas)){
 }
 
 #ANOVA Assumption Tests
-asa = merge(alphas, sample_data(sals), by = 0, all = TRUE)
+asa = merge(alphas, sample_data(frgs), by = 0, all = TRUE)
 shapiro.test(alphas$Shannon) #FAILED: p = 0.02106
 bartlett.test(Evenness ~ State_Region, data = asa) #FAILED: p = 0.0049
 
@@ -51,11 +51,11 @@ names(pca.list) = dist_models
 
 #For loop that loops through all of the distance models and calculates them
 for (i in dist_models) {
-  iDist <- phyloseq::distance(sals, method=i)
-  iMDS  <- ordinate(sals, "MDS", distance = iDist)
+  iDist <- phyloseq::distance(frgs, method=i)
+  iMDS  <- ordinate(frgs, "MDS", distance = iDist)
   #Make plot
   p <- NULL
-  p <- plot_ordination(sals, iMDS, color="State_Region", shape="Order")+
+  p <- plot_ordination(frgs, iMDS, color="State_Region", shape="Order")+
     ggtitle(paste("Distance Method ", i, sep=""))+
     geom_point(size = 4)+
     theme(plot.title = element_text(size = 12, family = "Georgia"))
@@ -86,16 +86,17 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
-ord <- ordinate(sals, "MDS", distance = (phyloseq::distance(sals, method = "unifrac"))) #change model here
-plot_ordination(sals, ord, color = "State_Region", shape = "Order")+
+ord <- ordinate(frgs, "MDS", distance = (phyloseq::distance(frgs, method = "wunifrac"))) #change model here
+plot_ordination(frgs, ord, color = "State_Region", shape = "Order")+
   scale_color_manual(values = the.royal)+
   scale_fill_manual(values = the.royal)+
   geom_point(size = 5)+
-  stat_ellipse(type = "norm", level = 0.99)+
-  labs(shape = "Host", color = "Region", x = "PC2", y = "PC1")+
+  labs(shape = "Host", color = "Region", x = "PC2", y = "PC1",
+       title  = "Beta Diversity of Frogs",
+       subtitle = "Weighted PCA")+
   theme(panel.border = element_blank(),
-        plot.title = element_text(size = 30, face = "bold"),
-        plot.subtitle = element_text(size = 22, face = "italic"),
+        plot.title = element_text(size = 24, face = "bold"),
+        plot.subtitle = element_text(size = 20, face = "italic"),
         legend.title = element_text(size = 16, family = "Georgia"),
         legend.text = element_text(size = 11, family = "Georgia"),
         axis.title.x = element_text(size = 16, family = "Georgia"),
@@ -105,4 +106,16 @@ plot_ordination(sals, ord, color = "State_Region", shape = "Order")+
         axis.line = element_line(colour = 'black', size = 0.2),
         panel.background = element_rect(fill = "gray98"))
 
+#----------------------------------------------------------------#
+##PERMANOVA: Confirms there are Diversity differences between the Groups
+md = data.frame(sample_data(frgs))
+perm <- adonis(phyloseq::distance(frgs, method="wunifrac") ~ State_Region,
+       data = md, permutations = 999)
+print(perm)
 
+#Pairwise PERMANOVA: Pairwise analysis of Diversity Differences
+permutest(betadisper(phyloseq::distance(frgs, method = "wunifrac"),
+                     md$Order),pairwise = TRUE)
+
+#----------------------------------------------------------------#
+#-----------------------END--------------------------------------#
