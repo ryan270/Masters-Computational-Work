@@ -8,7 +8,8 @@ project_packages <- c('phyloseq', 'qiime2R','DESeq2', 'phangorn', 'grid', 'ggplo
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
-amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza", taxonomy = "meta_taxonomy.qza",
+amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza",
+                                          taxonomy = "meta_taxonomy.qza",
                                           tree = "meta_rootd.qza", metadata="merged_metadata.txt"),
                           !is.na(Order) & !Order %in% c("", "uncharacterized"))
 
@@ -34,12 +35,15 @@ for(i in 1:nrow(alphas)){
 }
 
 #ANOVA Assumption Tests
+#All four alpha diversity measurments fail ANOVA assumptions
 asa = merge(alphas, sample_data(brkf), by = 0, all = TRUE)
 shapiro.test(alphas$Shannon) #SHANNON - PASS: p = 0.135
 bartlett.test(Shannon ~ State_Region, data = asa) #SHANNON - FAIL: p = 0.001398
 
+
 #PERMANOVA Richness Comparison
-adonis(Shannon ~ State_Region, data = asa, permutations = 999, pairwise = TRUE) #Not even: p = 0.001
+adonis(Shannon ~ State_Region, data = asa,
+       permutations = 999, pairwise = TRUE) #Not even: p = 0.001
 
 #----------------------------------------------------------------#
 ##BETA DIVERSITY AND DISTANCE: calculate PCA's with multiple models
@@ -110,6 +114,7 @@ plot_ordination(brkf, ord, color = "State_Region", shape = "Order")+
 
 #----------------------------------------------------------------#
 ##PERMANOVA: Confirms there are Diversity differences between the Groups
+#Results Inconclusive
 md = data.frame(sample_data(brkf))
 perm <- adonis(phyloseq::distance(brkf, method="wunifrac") ~ State_Region,
        data = md, permutations = 999)
