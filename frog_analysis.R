@@ -1,6 +1,6 @@
-###SUBSET ANALYSIS SCRIPT -- SALAMANDERS
+###SUBSET ANALYSIS SCRIPT -- FROGS
 #This script will provid an indepth analysis
-#...of the microbial diversity of just salamanders.
+#...of the microbial diversity of just frogs
 #This script is a modification of meta_analyze: the Meta Analysis Script
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
 project_packages <- c('phyloseq', 'qiime2R','DESeq2', 'phangorn', 'grid', 'ggplot2','DECIPHER',
@@ -12,8 +12,10 @@ amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza", taxo
                                           tree = "meta_rootd.qza", metadata="merged_metadata.txt"),
                           !is.na(Order) & !Order %in% c("", "uncharacterized"))
 
-#Subset just salamanders
+#Subset just frogs w/ < 40000 counts of Proteobacteria
 frgs <- subset_samples(amphib.obj, Order =="Anura")
+brk <- subset_taxa(frgs, Phylum == "Proteobacteria")
+brkf <- prune_samples(sample_sums(brk) < 40000, brk)
 
 #Very Important
 the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
@@ -22,7 +24,7 @@ the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50",
 #----------------------------------------------------------------#
 ##ALPHA DIVERSITY: plot and compare species richness and evenness
 #Calculate Evenness & Create DF with Evenness
-alphas <- estimate_richness(frgs, measure = c("Chao1", "Shannon", "Simpson"))
+alphas <- estimate_richness(brkf, measure = c("Chao1", "Shannon", "Simpson"))
 alphas$Evenness <- 0
 for(i in 1:nrow(alphas)){
   H <- alphas$Shannon
@@ -32,9 +34,9 @@ for(i in 1:nrow(alphas)){
 }
 
 #ANOVA Assumption Tests
-asa = merge(alphas, sample_data(frgs), by = 0, all = TRUE)
-shapiro.test(alphas$Shannon) #FAILED: p = 0.02106
-bartlett.test(Evenness ~ State_Region, data = asa) #FAILED: p = 0.0049
+asa = merge(alphas, sample_data(brkf), by = 0, all = TRUE)
+shapiro.test(alphas$Shannon) #SHANNON - PASS: p = 0.135
+bartlett.test(Shannon ~ State_Region, data = asa) #SHANNON - FAIL: p = 0.001398
 
 #PERMANOVA Richness Comparison
 adonis(Shannon ~ State_Region, data = asa, permutations = 999, pairwise = TRUE) #Not even: p = 0.001
@@ -51,11 +53,11 @@ names(pca.list) = dist_models
 
 #For loop that loops through all of the distance models and calculates them
 for (i in dist_models) {
-  iDist <- phyloseq::distance(frgs, method=i)
-  iMDS  <- ordinate(frgs, "MDS", distance = iDist)
+  iDist <- phyloseq::distance(brkf, method=i)
+  iMDS  <- ordinate(brkf, "MDS", distance = iDist)
   #Make plot
   p <- NULL
-  p <- plot_ordination(frgs, iMDS, color="State_Region", shape="Order")+
+  p <- plot_ordination(brkf, iMDS, color="State_Region", shape="Order")+
     ggtitle(paste("Distance Method ", i, sep=""))+
     geom_point(size = 4)+
     theme(plot.title = element_text(size = 12, family = "Georgia"))
@@ -86,8 +88,8 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
-ord <- ordinate(frgs, "MDS", distance = (phyloseq::distance(frgs, method = "wunifrac"))) #change model here
-plot_ordination(frgs, ord, color = "State_Region", shape = "Order")+
+ord <- ordinate(brkf, "MDS", distance = (phyloseq::distance(brkf, method = "unifrac")))
+plot_ordination(brkf, ord, color = "State_Region", shape = "Order")+
   scale_color_manual(values = the.royal)+
   scale_fill_manual(values = the.royal)+
   geom_point(size = 5)+
@@ -108,14 +110,15 @@ plot_ordination(frgs, ord, color = "State_Region", shape = "Order")+
 
 #----------------------------------------------------------------#
 ##PERMANOVA: Confirms there are Diversity differences between the Groups
-md = data.frame(sample_data(frgs))
-perm <- adonis(phyloseq::distance(frgs, method="wunifrac") ~ State_Region,
+md = data.frame(sample_data(brkf))
+perm <- adonis(phyloseq::distance(brkf, method="wunifrac") ~ State_Region,
        data = md, permutations = 999)
 print(perm)
 
 #Pairwise PERMANOVA: Pairwise analysis of Diversity Differences
-permutest(betadisper(phyloseq::distance(frgs, method = "wunifrac"),
-                     md$Order),pairwise = TRUE)
+#NO SIG DIFF between Frogs: p = 0.849!!
+permutest(betadisper(phyloseq::distance(brkf, method = "wunifrac"),
+                     md$State_Region),pairwise = TRUE)
 
 #----------------------------------------------------------------#
 #-----------------------END--------------------------------------#
