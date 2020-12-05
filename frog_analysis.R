@@ -15,13 +15,16 @@ amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza",
 
 #Subset just frogs w/ < 40000 counts of Proteobacteria
 frgs <- subset_samples(amphib.obj, Order =="Anura")
-brk <- subset_taxa(frgs, Phylum == "Proteobacteria")
-brkf <- prune_samples(sample_sums(brk) < 40000, brk)
+brkf <- prune_samples(sample_sums(frgs) < 40000, frgs)
 
 #Very Important
 the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
 
 #----------------------------------------------------------------#
+#----------------------------------------------------------------#
+##EXPLORING DIVERSITY: Exploratory chapter that attempts to resolve
+#...lack of difference between frog populations
+
 #----------------------------------------------------------------#
 ##ALPHA DIVERSITY: plot and compare species richness and evenness
 #Calculate Evenness & Create DF with Evenness
@@ -92,7 +95,7 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
-ord <- ordinate(brkf, "MDS", distance = (phyloseq::distance(brkf, method = "unifrac")))
+ord <- ordinate(brkf, "MDS", distance = (phyloseq::distance(brkf, method = "wunifrac")))
 plot_ordination(brkf, ord, color = "State_Region", shape = "Order")+
   scale_color_manual(values = the.royal)+
   scale_fill_manual(values = the.royal)+
@@ -116,12 +119,12 @@ plot_ordination(brkf, ord, color = "State_Region", shape = "Order")+
 ##PERMANOVA: Confirms there are Diversity differences between the Groups
 #Results Inconclusive
 md = data.frame(sample_data(brkf))
-perm <- adonis(phyloseq::distance(brkf, method="wunifrac") ~ State_Region,
+perm <- adonis(phyloseq::distance(brkf, method="unifrac") ~ State_Region,
        data = md, permutations = 999)
 print(perm)
 
 #Pairwise PERMANOVA: Pairwise analysis of Diversity Differences
-#NO SIG DIFF between Frogs: p = 0.849!!
+#Significant difference seen only in unweighted
 permutest(betadisper(phyloseq::distance(brkf, method = "wunifrac"),
                      md$State_Region),pairwise = TRUE)
 
