@@ -1,6 +1,6 @@
-###SUBSET ANALYSIS SCRIPT -- FROGS
+###SUBSET ANALYSIS SCRIPT -- SALAMANDERS
 #This script will provid an indepth analysis
-#...of the microbial diversity of just frogs
+#...of the microbial diversity of just salamanders.
 #This script is a modification of meta_analyze: the Meta Analysis Script
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
 project_packages <- c('phyloseq', 'qiime2R','DESeq2', 'phangorn', 'grid', 'ggplot2','DECIPHER',
@@ -8,23 +8,17 @@ project_packages <- c('phyloseq', 'qiime2R','DESeq2', 'phangorn', 'grid', 'ggplo
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
-amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza",
-                                          taxonomy = "meta_taxonomy.qza",
+amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza", taxonomy = "meta_taxonomy.qza",
                                           tree = "meta_rootd.qza", metadata="merged_metadata.txt"),
                           !is.na(Order) & !Order %in% c("", "uncharacterized"))
 
-#Subset just frogs w/ < 40000 counts of Proteobacteria
+#Subset just salamanders
 frgs <- subset_samples(amphib.obj, Order =="Anura")
-brkf <- prune_samples(sample_sums(frgs) < 40000, frgs)
 
 #Very Important
 the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
 
 #----------------------------------------------------------------#
-#----------------------------------------------------------------#
-##EXPLORING DIVERSITY: Exploratory chapter that attempts to resolve
-#...lack of difference between frog populations
-
 #----------------------------------------------------------------#
 ##ALPHA DIVERSITY: plot and compare species richness and evenness
 #Calculate Evenness & Create DF with Evenness
@@ -38,15 +32,32 @@ for(i in 1:nrow(alphas)){
 }
 
 #ANOVA Assumption Tests
-#All four alpha diversity measurments fail ANOVA assumptions
 asa = merge(alphas, sample_data(brkf), by = 0, all = TRUE)
-shapiro.test(alphas$Shannon) #SHANNON - PASS: p = 0.135
-bartlett.test(Shannon ~ State_Region, data = asa) #SHANNON - FAIL: p = 0.001398
-
+shapiro.test(alphas$Shannon) #FAILED: p = 0.02106
+bartlett.test(Evenness ~ State_Region, data = asa) #FAILED: p = 0.0049
 
 #PERMANOVA Richness Comparison
-adonis(Shannon ~ State_Region, data = asa,
-       permutations = 999, pairwise = TRUE) #Not even: p = 0.001
+#No Difference in Alpha Diversity: Shannon & Simpson,
+#Differences in Alpha Diversity: Chao1 & Evenness
+adonis(Evenness ~ State_Region, data = asa, permutations = 999, pairwise = TRUE) #Not even: p = 0.001
+
+#Plot Facet-Wrapped Boxpolot of Richness and Evenness
+alpha2 <- tidyr::gather(data.frame(alphas, sample_data(brkf)),
+                        key = "Measure", value = "Value", Shannon, Chao1, Simpson, Evenness)
+ggplot(data = alpha2, aes(x = State_Region, y = Value, color = Family))+
+  labs(color = "Host", x = "State Region")+
+  facet_wrap(~Measure, scale = "free", nrow = 1)+
+  geom_jitter(width = 0.2)+
+  stat_summary(aes(y = Value,group=1), fun=mean, colour="#899DA4", geom="line",group=1)+
+  scale_color_manual(values= the.royal)+
+  theme(axis.text.x = element_text(angle = 70, hjust = 1, size = 10,
+                                   colour = 'black', family = "Georgia"),
+        panel.border = element_blank(), axis.title.y = element_blank(),
+        legend.title = element_text(size = 14, family = "Georgia"),
+        legend.text = element_text(size = 12, family = "Georgia"),
+        panel.grid.major = element_line(size = .3, linetype = 'solid', colour = 'gray80'),
+        panel.background = element_rect(fill = "gray98"),
+        axis.title = element_text(size = 16, family = "Georgia"))
 
 #----------------------------------------------------------------#
 ##BETA DIVERSITY AND DISTANCE: calculate PCA's with multiple models
@@ -60,11 +71,11 @@ names(pca.list) = dist_models
 
 #For loop that loops through all of the distance models and calculates them
 for (i in dist_models) {
-  iDist <- phyloseq::distance(brkf, method=i)
-  iMDS  <- ordinate(brkf, "MDS", distance = iDist)
+  iDist <- phyloseq::distance(frgs, method=i)
+  iMDS  <- ordinate(frgs, "MDS", distance = iDist)
   #Make plot
   p <- NULL
-  p <- plot_ordination(brkf, iMDS, color="State_Region", shape="Order")+
+  p <- plot_ordination(frgs, iMDS, color="State_Region", shape="Order")+
     ggtitle(paste("Distance Method ", i, sep=""))+
     geom_point(size = 4)+
     theme(plot.title = element_text(size = 12, family = "Georgia"))
@@ -95,8 +106,8 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
-ord <- ordinate(brkf, "MDS", distance = (phyloseq::distance(brkf, method = "wunifrac")))
-plot_ordination(brkf, ord, color = "State_Region", shape = "Order")+
+ord <- ordinate(frgs, "MDS", distance = (phyloseq::distance(frgs, method = "wunifrac"))) #change model here
+plot_ordination(frgs, ord, color = "State_Region", shape = "Order")+
   scale_color_manual(values = the.royal)+
   scale_fill_manual(values = the.royal)+
   geom_point(size = 5)+
@@ -117,16 +128,14 @@ plot_ordination(brkf, ord, color = "State_Region", shape = "Order")+
 
 #----------------------------------------------------------------#
 ##PERMANOVA: Confirms there are Diversity differences between the Groups
-#Results Inconclusive
-md = data.frame(sample_data(brkf))
-perm <- adonis(phyloseq::distance(brkf, method="unifrac") ~ State_Region,
+md = data.frame(sample_data(frgs))
+perm <- adonis(phyloseq::distance(frgs, method="wunifrac") ~ State_Region,
        data = md, permutations = 999)
 print(perm)
 
 #Pairwise PERMANOVA: Pairwise analysis of Diversity Differences
-#Significant difference seen only in unweighted
-permutest(betadisper(phyloseq::distance(brkf, method = "wunifrac"),
-                     md$State_Region),pairwise = TRUE)
+permutest(betadisper(phyloseq::distance(frgs, method = "wunifrac"),
+                     md$Order),pairwise = TRUE)
 
 #----------------------------------------------------------------#
 #-----------------------END--------------------------------------#
