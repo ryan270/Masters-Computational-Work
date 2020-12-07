@@ -18,11 +18,11 @@ semap <- read.table(file = 'SE_mapping_file.txt', sep = "\t", header = TRUE)
 #Remove all columns unique to one dataset
 names(abmap)[names(abmap) == "Habitat_Type"] <- "Habitat"
 abmap <- select(abmap,-c(Sample_Type, Higher_Clade))
-mgmap <- select(mgmap, -c(LinkerPrimerSequence, ReversePrimer, BarcodeSequence, Sex, 
+mgmap <- select(mgmap, -c(LinkerPrimerSequence, ReversePrimer, BarcodeSequence, Sex,
                           Age_Class, Geology, Site, Mountain_range, Collector_number,
-                          ZE, Log_ZE, Elevation, Description, Date, Country)) 
-spimap <- select(spimap, -c(LinkerPrimerSequence, ReversePrimer, BarcodeSequence, project1, project2, 
-                            type, age, sex, cov.obj,soil.moist, soil.temp, cov.wd, cov.lth, date, 
+                          ZE, Log_ZE, Elevation, Description, Date, Country))
+spimap <- select(spimap, -c(LinkerPrimerSequence, ReversePrimer, BarcodeSequence, project1, project2,
+                            type, age, sex, cov.obj,soil.moist, soil.temp, cov.wd, cov.lth, date,
                             Description,svl, tot.lgth, wgt))
 semap <- select(semap, -c(Sample_Name, month, frog_location, extraction_date, BarcodeSequence,
                           year, frog_id, survey_date, frog_weight, Description, LinkerPrimerSequence,
@@ -71,7 +71,7 @@ abmap$State_Region <- 0
 for(i in 1:nrow(abmap)){
   if (abmap$Site[i] == 'Alameda' || abmap$Site[i] == 'Monterey') {
     abmap$State_Region[i] <- 'Coastal_California'
-  } else if (abmap$Site[i] == 'Jackson_State_Forest' || 
+  } else if (abmap$Site[i] == 'Jackson_State_Forest' ||
              abmap$Site[i] == 'Siskiyou' || abmap$Site == 'Shasta' ||
              abmap$Site[i] == 'Humboldt' ||
              abmap$Site[i] == 'Leggett'){
@@ -108,10 +108,10 @@ for(i in 1:nrow(semap)){
         semap$Latitude[i] <- 38.934
         semap$Longitude[i] <- -120.1475
     }else if (32 < i & i < 64){
-        semap$Latitude[i] <- 38.38841 
+        semap$Latitude[i] <- 38.38841
         semap$Longitude[i] <- -120.1595
     }else if (64 < i & i < 96){
-        semap$Latitude[i] <- 38.402 
+        semap$Latitude[i] <- 38.402
         semap$Longitude[i] <- -120.1602
     }else{
         semap$Latitude[i] <- 39.008395
