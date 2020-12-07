@@ -135,10 +135,5 @@ perm <- adonis(phyloseq::distance(brkf, method="unifrac") ~ State_Region,
        data = md, permutations = 999)
 print(perm)
 
-#Pairwise PERMANOVA: Pairwise analysis of Diversity Differences
-#No Differences in permutest
-permutest(betadisper(phyloseq::distance(brkf, method = "wunifrac"),
-                     md$State_Region),pairwise = TRUE)
-
 #----------------------------------------------------------------#
 #-----------------------END--------------------------------------#
