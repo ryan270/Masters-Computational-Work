@@ -24,9 +24,8 @@ the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50",
 #Remove Samples w/ more than 75% Proteobacteria
 tfrg <- transform_sample_counts(frgs, function(x) x/ sum(x)) %>%
     psmelt()
-prof <- tfrg$Sample[which(tfrg$Phylum == "Proteobacteria" &
-                          tfrg$Abundance > .8)]
-nsmps <- setdiff(sample_names(frgs), prof)
+nsmps <- setdiff(sample_names(frgs),
+                 tfrg$Sample[which(tfrg$Abundance > .8)])
 nopro <- prune_samples(nsmps, frgs)
 
 #----------------------------------------------------------------#
