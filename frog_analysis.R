@@ -29,11 +29,13 @@ nsmps <- setdiff(sample_names(frgs),
 nopro <- prune_samples(nsmps, frgs)
 ntst <- transform_sample_counts(nopro, function(x) x/ sum(x)) %>%
     psmelt()
-
+mfrgs <- setdiff(nsmps,
+                 c("SE108", "SE107", "SE110", "SE37", "SE39", "SE44", "SE72"))
+npro2 <- prune_samples(mfrgs, nopro)
 #----------------------------------------------------------------#
 ##TAXA BARPLOT: Displays only the top OTUS for Each Region
 #Create Database of OTU's w/ 1% Category
-txs <- psmelt(tax_glom(transform_sample_counts(nopro, function(x) x / sum(x) ), taxrank = 'Phylum'))
+txs <- psmelt(tax_glom(transform_sample_counts(npro2, function(x) x / sum(x) ), taxrank = 'Phylum'))
 txs$Phylum <- as.character(txs$Phylum)
 txs$Phylum[txs$Abundance < 0.01] <- "< 1% Abundance"
 
@@ -57,6 +59,7 @@ ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
   ylab('Relative Abunance')+
   theme(legend.position= c(0.67, 0.17), legend.key.height = unit(0.7, 'cm'),
         legend.key.width = unit(1.7, 'cm'),
+        axis.text.x = element_blank(),
         axis.title = element_text(size = 16, family = "Georgia"),
         axis.ticks.x = element_blank(), axis.title.x = element_blank(),
         legend.title = element_text(size = 14, family = "Georgia"),
@@ -68,7 +71,7 @@ ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
 #----------------------------------------------------------------#
 ##ALPHA DIVERSITY: plot and compare species richness and evenness
 #Calculate Evenness & Create DF with Evenness
-alphas <- estimate_richness(nopro, measure = c("Chao1", "Shannon", "Simpson"))
+alphas <- estimate_richness(npro2, measure = c("Chao1", "Shannon", "Simpson"))
 alphas$Evenness <- 0
 for(i in 1:nrow(alphas)){
   H <- alphas$Shannon
@@ -78,17 +81,17 @@ for(i in 1:nrow(alphas)){
 }
 
 #ANOVA Assumption Tests
-asa = merge(alphas, sample_data(nopro), by = 0, all = TRUE)
+asa = merge(alphas, sample_data(npro2), by = 0, all = TRUE)
 shapiro.test(alphas$Shannon) #FAILED: p = 0.02106
 bartlett.test(Evenness ~ State_Region, data = asa) #FAILED: p = 0.0049
 
 #PERMANOVA Richness Comparison
 #No Difference in Alpha Diversity: Shannon & Simpson,
 #Differences in Alpha Diversity: Chao1 & Evenness
-adonis(Evenness ~ State_Region, data = asa, permutations = 999, pairwise = TRUE) #Not even: p = 0.001
+adonis(Simpson ~ State_Region, data = asa, permutations = 999, pairwise = TRUE) #Not even: p = 0.001
 
 #Plot Facet-Wrapped Boxpolot of Richness and Evenness
-alpha2 <- tidyr::gather(data.frame(alphas, sample_data(nopro)),
+alpha2 <- tidyr::gather(data.frame(alphas, sample_data(npro2)),
                         key = "Measure", value = "Value", Shannon, Chao1, Simpson, Evenness)
 ggplot(data = alpha2, aes(x = State_Region, y = Value, color = Family))+
   labs(color = "Host", x = "State Region")+
@@ -117,11 +120,11 @@ names(pca.list) = dist_models
 
 #For loop that loops through all of the distance models and calculates them
 for (i in dist_models) {
-  iDist <- phyloseq::distance(nopro, method=i)
-  iMDS  <- ordinate(nopro, "MDS", distance = iDist)
+  iDist <- phyloseq::distance(npro2, method=i)
+  iMDS  <- ordinate(npro2, "MDS", distance = iDist)
   #Make plot
   p <- NULL
-  p <- plot_ordination(nopro, iMDS, color="State_Region", shape="Order")+
+  p <- plot_ordination(npro2, iMDS, color="State_Region", shape="Order")+
     ggtitle(paste("Distance Method ", i, sep=""))+
     geom_point(size = 4)+
     theme(plot.title = element_text(size = 12, family = "Georgia"))
@@ -152,8 +155,8 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
-ord <- ordinate(nopro, "MDS", distance = (phyloseq::distance(nopro, method = "unifrac"))) #change model here
-plot_ordination(nopro, ord, color = "State_Region", shape = "Order")+
+ord <- ordinate(npro2, "MDS", distance = (phyloseq::distance(npro2, method = "wunifrac"))) #change model here
+plot_ordination(npro2, ord, color = "State_Region")+
   scale_color_manual(values = the.royal)+
   scale_fill_manual(values = the.royal)+
   geom_point(size = 5)+
@@ -175,8 +178,8 @@ plot_ordination(nopro, ord, color = "State_Region", shape = "Order")+
 #----------------------------------------------------------------#
 ##PERMANOVA: Confirms there are Diversity differences between the Groups
 #Significant differences in weighted and unweighted
-md = data.frame(sample_data(nopro))
-perm <- adonis(phyloseq::distance(nopro, method="wunifrac") ~ State_Region,
+md = data.frame(sample_data(npro2))
+perm <- adonis(phyloseq::distance(npro2, method="wunifrac") ~ State_Region,
        data = md, permutations = 999)
 print(perm)
 
