@@ -27,6 +27,8 @@ tfrg <- transform_sample_counts(frgs, function(x) x/ sum(x)) %>%
 nsmps <- setdiff(sample_names(frgs),
                  tfrg$Sample[which(tfrg$Abundance > .8)])
 nopro <- prune_samples(nsmps, frgs)
+ntst <- transform_sample_counts(nopro, function(x) x/ sum(x)) %>%
+    psmelt()
 
 #----------------------------------------------------------------#
 ##TAXA BARPLOT: Displays only the top OTUS for Each Region
@@ -53,8 +55,9 @@ ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
                                "#446455", "#FDD262", "#EE6A50", "#899DA4","#D3DDDC", "#9A8822", "#046C9A",
                                "#000000"))+
   ylab('Relative Abunance')+
-  theme(legend.position= c(0.67, 0.17), legend.key.height = unit(0.7, 'cm'), legend.key.width = unit(1.7, 'cm'),
-        axis.title = element_text(size = 16, family = "Georgia"), axis.text.x = element_blank(),
+  theme(legend.position= c(0.67, 0.17), legend.key.height = unit(0.7, 'cm'),
+        legend.key.width = unit(1.7, 'cm'),
+        axis.title = element_text(size = 16, family = "Georgia"),
         axis.ticks.x = element_blank(), axis.title.x = element_blank(),
         legend.title = element_text(size = 14, family = "Georgia"),
         legend.text = element_text(size = 11, family = "Georgia"),
