@@ -26,12 +26,16 @@ tfrg <- transform_sample_counts(frgs, function(x) x/ sum(x)) %>%
     psmelt()
 nsmps <- setdiff(sample_names(frgs),
                  tfrg$Sample[which(tfrg$Abundance > .8)])
+
 nopro <- prune_samples(nsmps, frgs)
 ntst <- transform_sample_counts(nopro, function(x) x/ sum(x)) %>%
     psmelt()
 mfrgs <- setdiff(nsmps,
                  c("SE108", "SE107", "SE110", "SE37", "SE39", "SE44", "SE72"))
 npro2 <- prune_samples(mfrgs, nopro)
+outs <- tfrg$Sample[which(tfrg$Abundance > .8)] %>%
+    append(c("SE108", "SE107", "SE110", "SE37", "SE39", "SE44", "SE72"))
+
 #----------------------------------------------------------------#
 ##TAXA BARPLOT: Displays only the top OTUS for Each Region
 #Create Database of OTU's w/ 1% Category
