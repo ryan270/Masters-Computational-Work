@@ -22,6 +22,17 @@ the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50",
 #----------------------------------------------------------------#
 #----------------------------------------------------------------#
 
+##REMOVE OUTLIERS: Remove Frogs with very high levels of Proteobacteria
+acts <- transform_sample_counts(amphib.obj, function(x) x/ sum(x)) %>%
+    psmelt()
+
+outs <- acts$Sample[which(acts$Abundance > .8)] %>%
+    append(c("SE108", "SE107", "SE110", "SE37", "SE39", "SE44", "SE72"))
+
+nsmps <- setdiff(sample_names(amphib.obj), outs)
+amphib.obj <- prune_samples(nsmps, amphib.obj)
+
+#----------------------------------------------------------------#
 ##TAXA BARPLOT: Displays only the top OTUS for Each Region
 #Create Database of OTU's w/ 1% Category
 txs <- psmelt(tax_glom(transform_sample_counts(amphib.obj, function(x) x / sum(x) ), taxrank = 'Phylum'))
@@ -140,13 +151,13 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
-ord <- ordinate(amphib.obj, "MDS", distance = (phyloseq::distance(amphib.obj, method = "unifrac"))) #change model here
+ord <- ordinate(amphib.obj, "MDS", distance = (phyloseq::distance(amphib.obj, method = "wunifrac"))) #change model here
 plot_ordination(amphib.obj, ord, color = "State_Region", shape = "Order")+
   scale_color_manual(values = the.royal)+
   scale_fill_manual(values = the.royal)+
   geom_point(size = 5)+
-  annotate(geom = 'text', x = 0, y = 0.25, label = 'R. sierrae', size = 6)+
-  stat_ellipse(type = "norm", level = 0.99)+
+  #annotate(geom = 'text', x = 0, y = 0.25, label = 'R. sierrae', size = 6)+
+  #stat_ellipse(type = "norm", level = 0.99)+
   labs(shape = "Host", color = "Region", x = "PC2", y = "PC1")+
   theme(panel.border = element_blank(),
         plot.title = element_text(size = 30, face = "bold"),
