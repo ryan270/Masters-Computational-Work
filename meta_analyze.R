@@ -1,8 +1,9 @@
 ###META ANALYSIS SCRIPT
 
-#This script will provide an in depth analysis of microbial data previously analyzed in
-#...QIIME2. This script will render multiple plots that will elucidate the change in
-#...diversity on amphibians between regions along the Pacific Coast
+#This script will provide an in depth analysis of microbial data previously
+#...analyzed in QIIME2. This script will render multiple plots that will
+#...elucidate the change in diversity on amphibians between regions along the
+#...Pacific Coast.
 
 ##LOAD PACKAGES, DATA, AND DIRECTORY
 #Set Directory and Load required Packages

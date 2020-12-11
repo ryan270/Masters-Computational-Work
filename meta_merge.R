@@ -9,7 +9,8 @@ library(plyr)
 library(maps)
 
 abmap <- read.table(file = 'AB_mapping_file.txt', sep = "\t", header = TRUE)
-mgmap <- read.table(file = 'MG_Mapping_File_GUA_with_Bd.txt', sep = "\t", header = TRUE)
+mgmap <- read.table(file = 'MG_Mapping_File_GUA_with_Bd.txt',
+                    sep = "\t", header = TRUE)
 spimap <- read.table(file = 'SPI_mapping_file.txt', sep = "\t", header = TRUE)
 semap <- read.table(file = 'SE_mapping_file.txt', sep = "\t", header = TRUE)
 
@@ -18,16 +19,19 @@ semap <- read.table(file = 'SE_mapping_file.txt', sep = "\t", header = TRUE)
 #Remove all columns unique to one dataset
 names(abmap)[names(abmap) == "Habitat_Type"] <- "Habitat"
 abmap <- select(abmap,-c(Sample_Type, Higher_Clade))
-mgmap <- select(mgmap, -c(LinkerPrimerSequence, ReversePrimer, BarcodeSequence, Sex,
-                          Age_Class, Geology, Site, Mountain_range, Collector_number,
-                          ZE, Log_ZE, Elevation, Description, Date, Country))
-spimap <- select(spimap, -c(LinkerPrimerSequence, ReversePrimer, BarcodeSequence, project1, project2,
-                            type, age, sex, cov.obj,soil.moist, soil.temp, cov.wd, cov.lth, date,
-                            Description,svl, tot.lgth, wgt))
-semap <- select(semap, -c(Sample_Name, month, frog_location, extraction_date, BarcodeSequence,
-                          year, frog_id, survey_date, frog_weight, Description, LinkerPrimerSequence,
-                          lifestage, ZE, pit_tag_id, frog_svl, ReversePrimer, gosner_stage,
-                          frog_sex, swabber_name, site_id))
+mgmap <- select(mgmap, -c(LinkerPrimerSequence, ReversePrimer, BarcodeSequence,
+                          Sex, Age_Class, Geology, Site, Mountain_range,
+                          Collector_number, ZE, Log_ZE, Elevation, Description,
+                          Date, Country))
+spimap <- select(spimap, -c(LinkerPrimerSequence, ReversePrimer,
+                            BarcodeSequence, project1, project2, type, age,
+                            sex, cov.obj,soil.moist, soil.temp, cov.wd,
+                            cov.lth, date, Description,svl, tot.lgth, wgt))
+semap <- select(semap, -c(Sample_Name, month, frog_location, extraction_date,
+                          BarcodeSequence, year, frog_id, survey_date,
+                          frog_weight, Description, LinkerPrimerSequence,
+                          lifestage, ZE, pit_tag_id, frog_svl, ReversePrimer,
+                          gosner_stage, frog_sex, swabber_name, site_id))
 
 #rename columns to match
 names(mgmap)[names(mgmap) == 'County_Municipio'] <- 'Site'
@@ -142,14 +146,19 @@ spimap$Dataset <- as.character("Prado-Irwin et al., 2017", quote = FALSE)
 
 
 ##JOIN TABLES
-meta_1 <- full_join(semap, mgmap, by = c('SampleID', 'Bd_status', 'Species', 'Genus', 'Family',
-                                        'Site', 'Order', 'Dataset', 'State_Region', 'Latitude', 'Longitude'), copy = TRUE)
-meta_2 <- full_join(abmap, spimap, by = c('SampleID', 'Genus', 'Species', 'Family',
-                                           'Order', 'Site', 'Dataset', 'Latitude', 'Longitude', 'subspecies',
+meta_1 <- full_join(semap, mgmap, by = c('SampleID', 'Bd_status', 'Species',
+                                         'Genus', 'Family', 'Site', 'Order',
+                                         'Dataset', 'State_Region', 'Latitude',
+                                         'Longitude'), copy = TRUE)
+meta_2 <- full_join(abmap, spimap, by = c('SampleID', 'Genus', 'Species',
+                                          'Family', 'Order', 'Site', 'Dataset',
+                                          'Latitude', 'Longitude', 'subspecies',
                                            'State_Region'), copy = TRUE)
-meta_3 <- full_join(meta_1, meta_2, by = c('SampleID', 'Genus', 'Species', 'Family', 'Order', 'subspecies',
-                                           'Habitat', 'State_Region', 'Dataset', 'Latitude',
-                                           'Longitude', 'Site', 'Bd_status'), copy = TRUE)
+meta_3 <- full_join(meta_1, meta_2, by = c('SampleID', 'Genus', 'Species',
+                                           'Family', 'Order', 'subspecies',
+                                           'Habitat', 'State_Region', 'Dataset',
+                                           'Latitude', 'Longitude', 'Site',
+                                           'Bd_status'), copy = TRUE)
 
 ##EXPORT: write out table
 write.table(meta_3, file = 'merged_metadata.txt', append = FALSE, sep = '\t',

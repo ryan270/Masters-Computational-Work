@@ -17,5 +17,7 @@ sdspi.seqs <- (RCurl::merge.list(seseqs, spiseqs))
 meta.seqs <- (RCurl::merge.list(abmg.seqs, sdspi.seqs))
 
 #Export & Write
-write.fasta(meta.seqs, names = names(meta.seqs), file.out = "formatted_meta_seqs.fasta", open = "w", as.string = FALSE)
+write.fasta(meta.seqs, names = names(meta.seqs),
+            file.out = "formatted_meta_seqs.fasta", open = "w",
+            as.string = FALSE)
 

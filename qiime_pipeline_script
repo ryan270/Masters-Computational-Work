@@ -1,5 +1,6 @@
 ###QIIME META_ANALYSIS PIPELINE
-#I will be applying this pipeine to each individual dataset until merging them at the end
+#I will be applying this pipeine to each individual dataset until merging them
+#...at the end
 
 
 #IMPORTING
@@ -84,7 +85,7 @@ qiime feature-table filter-seqs
 
 #Clustering OTU's
 #Cluster at 97%
-qiime vsearch cluter-features-de-novo 
+qiime vsearch cluter-features-de-novo
 --i-table [derep_table.qza]
 --i-sequences [derep_seqs.qza]
 --o-clustered-table [97_denovo_table.qza]
@@ -118,7 +119,7 @@ qiime feature-table filter-seqs
 #ASSIGN TAXONMY#
 #used greeengenes 99% to assign taxa
 qiime tools import
---input-path [99_otus.fasta] 
+--input-path [99_otus.fasta]
 --output-path [ref_seqs.qza]
 --type 'FeatureData[Sequence]'
 
@@ -127,12 +128,12 @@ qiime feature-classifier extract-reads
 --i-sequences [ref_seqs.qza]
 --p-f-primer CCTACGGGNGGCWGCAG
 --p-r-primer GACTACHVGGGTATCTAATCC #got primers form mapping_file.txt
---p-min-length 250 #min-length based on the length of half reads 
+--p-min-length 250 #min-length based on the length of half reads
 --p-max-length 466
 --o-reads [extracted_ref_seqs.qza]
 
 #upload the corresponding taxonomy
-qiime tools import 
+qiime tools import
 --type 'FeatureData[Taxonomy]'
 --input-format HeaderlessTSVTaxonomyFormat
 --input-path [taxonomy.txt]

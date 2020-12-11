@@ -25,21 +25,34 @@ for (i in tax.1$Taxon) {
 }
 
 
-tax.1$Taxon <- (gsub('k__Bacteria; p__Chlamydiae; c__Chlamydiia; o__Chlamydiales; f__Chlamydiaceae', 
+tax.1$Taxon <- (gsub('k__Bacteria; p__Chlamydiae; c__Chlamydiia;
+                     o__Chlamydiales; f__Chlamydiaceae',
                      'Chlamydiaceae', tax.1$Taxon))
-tax.1$Taxon <- (gsub("k__Bacteria; p__Acidobacteria; c__Acidobacteriia; o__Acidobacteriales; f__Acidobacteriaceae; g__Granulicella; s__paludicola",
+tax.1$Taxon <- (gsub("k__Bacteria; p__Acidobacteria; c__Acidobacteriia;
+                     o__Acidobacteriales; f__Acidobacteriaceae;
+                     g__Granulicella; s__paludicola",
                      'Acidobacteriaceae', tax.1$Taxon))
-tax.1$Taxon <- (gsub("k__Bacteria; p__Bacteroidetes; c__Sphingobacteriia; o__Sphingobacteriales; f__Sphingobacteriaceae; g__Mucilaginibacter; s__rigui",
+tax.1$Taxon <- (gsub("k__Bacteria; p__Bacteroidetes; c__Sphingobacteriia;
+                     o__Sphingobacteriales; f__Sphingobacteriaceae;
+                     g__Mucilaginibacter; s__rigui",
                      'Sphingobacteriaceae', tax.1$Taxon))
-tax.1$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria; o__Xanthomonadales; f__Xanthomonadaceae; g__Arenimonas; s__oryziterrae",
+tax.1$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria;
+                    o__Xanthomonadales; f__Xanthomonadaceae; g__Arenimonas;
+                    s__oryziterrae",
                     'Xanthomonadaceae', tax.1$Taxon)
-tax.1$Taxon <- gsub("k__Bacteria; p__Actinobacteria; c__Actinobacteria; o__Actinomycetales; f__Nocardioidaceae; g__Nocardioides",
+tax.1$Taxon <- gsub("k__Bacteria; p__Actinobacteria; c__Actinobacteria;
+                    o__Actinomycetales; f__Nocardioidaceae; g__Nocardioides",
                     'Nocardioidaceae', tax.1$Taxon)
-tax.1$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria; o__Enterobacteriales; f__Enterobacteriaceae; g__Pseudomonas; s__syringae",
+tax.1$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria;
+                    o__Enterobacteriales; f__Enterobacteriaceae; g__Pseudomonas;
+                    s__syringae",
                     'Enterobacteriaceae', tax.1$Taxon)
-tax.1$Taxon <- gsub("k__Bacteria; p__Bacteroidetes; c__Sphingobacteriia; o__Sphingobacteriales; f__Sphingobacteriaceae; g__Cytophagales; s__MBIC4147",
+tax.1$Taxon <- gsub("k__Bacteria; p__Bacteroidetes; c__Sphingobacteriia;
+                    o__Sphingobacteriales; f__Sphingobacteriaceae;
+                    g__Cytophagales; s__MBIC4147",
                     'Sphingobacteriaceae', tax.1$Taxon)
-tax.1$Taxon <- gsub("k__Bacteria; p__Actinobacteria; c__Actinobacteria; o__Actinomycetales; f__Micromonosporaceae",
+tax.1$Taxon <- gsub("k__Bacteria; p__Actinobacteria; c__Actinobacteria;
+                    o__Actinomycetales; f__Micromonosporaceae",
                     'Micromonosporaceae', tax.1$Taxon)
 
 #blank theme for pie_chart
@@ -73,23 +86,31 @@ ggplot(data = tax.1, aes(x = Taxon))+
 #repeat for tax.2
 tax.2 <- tax.2[-c(1),]
 
-tax.2$Taxon <- gsub("k__Bacteria; p__Chlamydiae; c__Chlamydiia; o__Chlamydiales; f__Parachlamydiaceae; g__; s__",
+tax.2$Taxon <- gsub("k__Bacteria; p__Chlamydiae; c__Chlamydiia;
+                    o__Chlamydiales; f__Parachlamydiaceae; g__; s__",
                     'Parachlamydiaceae', tax.2$Taxon)
-tax.2$Taxon <- gsub("k__Bacteria; p__Bacteroidetes; c__Cytophagia; o__Cytophagales; f__Flammeovirgaceae; g__Flexithrix; s__",
+tax.2$Taxon <- gsub("k__Bacteria; p__Bacteroidetes; c__Cytophagia;
+                    o__Cytophagales; f__Flammeovirgaceae; g__Flexithrix; s__",
                     'Flammeovirgaceae', tax.2$Taxon)
-tax.2$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria; o__Xanthomonadales; f__Xanthomonadaceae; g__; s__",
+tax.2$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria;
+                    o__Xanthomonadales; f__Xanthomonadaceae; g__; s__",
                     'Xanthomonodaceae', tax.2$Taxon)
-tax.2$Taxon <- gsub("k__Bacteria; p__Actinobacteria; c__Actinobacteria; o__Actinomycetales; f__Streptomycetaceae; g__Streptomyces; s__",
-                    'Streptomycetaceae', tax.2$Taxon)
-tax.2$Taxon <- gsub("k__Bacteria; p__Actinobacteria; c__Actinobacteria; o__Actinomycetales",
-                    'Actinomycetales order', tax.2$Taxon)
-tax.2$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria; o__Pseudomonadales; f__Pseudomonadaceae; g__Pseudomonas; s__veronii",
+tax.2$Taxon <- gsub("k__Bacteria; p__Actinobacteria; c__Actinobacteria;
+                    o__Actinomycetales; f__Streptomycetaceae; g__Streptomyces;
+                    s__", 'Streptomycetaceae', tax.2$Taxon)
+tax.2$Taxon <- gsub("k__Bacteria; p__Actinobacteria; c__Actinobacteria;
+                    o__Actinomycetales", 'Actinomycetales order', tax.2$Taxon)
+tax.2$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria;
+                    o__Pseudomonadales; f__Pseudomonadaceae; g__Pseudomonas;
+                    s__veronii", 'Pseudomonadaceae', tax.2$Taxon)
+tax.2$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria;
+                    o__Pseudomonadales; f__Pseudomonadaceae; g__Pseudomonas;
+                    s__", 'Pseudomonadaceae', tax.2$Taxon)
+tax.2$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria;
+                    o__Pseudomonadales; f__Pseudomonadaceae; g__Pseudomonas",
                     'Pseudomonadaceae', tax.2$Taxon)
-tax.2$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria; o__Pseudomonadales; f__Pseudomonadaceae; g__Pseudomonas; s__",
-                    'Pseudomonadaceae', tax.2$Taxon)
-tax.2$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria; o__Pseudomonadales; f__Pseudomonadaceae; g__Pseudomonas",
-                    'Pseudomonadaceae', tax.2$Taxon)
-tax.2$Taxon <- gsub("k__Bacteria; p__Bacteroidetes", 'Bacteroidetes phylum', tax.2$Taxon)
+tax.2$Taxon <- gsub("k__Bacteria; p__Bacteroidetes", 'Bacteroidetes phylum',
+                    tax.2$Taxon)
 
 ##PLOT
 #TAXONOMY 2 PIE CHART
