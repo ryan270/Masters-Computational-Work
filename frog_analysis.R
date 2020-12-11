@@ -8,15 +8,18 @@ project_packages <- c('phyloseq', 'qiime2R','phangorn', 'grid', 'ggplot2',
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
-amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza", taxonomy = "meta_taxonomy.qza",
-                                          tree = "meta_rootd.qza", metadata="merged_metadata.txt"),
+amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza",
+                                          taxonomy = "meta_taxonomy.qza",
+                                          tree = "meta_rootd.qza",
+                                          metadata="merged_metadata.txt"),
                           !is.na(Order) & !Order %in% c("", "uncharacterized"))
 
 #Subset just frogs
 frgs <- subset_samples(amphib.obj, Order =="Anura")
 
 #Very Important
-the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
+the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0",
+               "#EE6A50", "#74A089")
 
 #----------------------------------------------------------------#
 #----------------------------------------------------------------#
@@ -45,21 +48,27 @@ txs$Phylum[txs$Abundance < 0.01] <- "< 1% Abundance"
 
 #Re-Order Levels
 txs$Phylum <- factor(txs$Phylum,
-                          levels = c("Acidobacteria", "Actinobacteria", "Armatimonadetes", "Bacteroidetes",
-                                     "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres",
-                                     "Elusimicrobia", "Fibrobacteres", "Firmicutes", "Fusobacteria",
-                                     "Gemmatimonadetes", "Lentisphaerae", "Nitrospirae","Planctomycetes",
-                                     "Proteobacteria","TM7", "Verrucomicrobia", "WS3", "[Thermi]",
-                                     "< 1% Abundance"))
+                          levels = c("Acidobacteria", "Actinobacteria",
+                                     "Armatimonadetes", "Bacteroidetes",
+                                     "Chlamydiae", "Chloroflexi",
+                                     "Cyanobacteria", "Deferribacteres",
+                                     "Elusimicrobia", "Fibrobacteres",
+                                     "Firmicutes", "Fusobacteria",
+                                     "Gemmatimonadetes", "Lentisphaerae"
+                                     "Nitrospirae","Planctomycetes",
+                                     "Proteobacteria","TM7", "Verrucomicrobia",
+                                     "WS3", "[Thermi]", "< 1% Abundance"))
 
 #Plot Relative Abundances
 ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
   facet_wrap(~State_Region, scales = "free_x", nrow = 3)+
   geom_bar(aes(), stat="identity", position="stack") +
-  scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0", "#78B7C5", "#FF0000", "#00A08A",
-                               "#F2AD00", "#F98400", "#46ACC8", "#ECCBAE", "#F5CDB4", "#D69C4E", "#ABDDDE",
-                               "#446455", "#FDD262", "#EE6A50", "#899DA4","#D3DDDC", "#9A8822", "#046C9A",
-                               "#000000"))+
+  scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
+                               "#78B7C5", "#FF0000", "#00A08A", "#F2AD00",
+                               "#F98400", "#46ACC8", "#ECCBAE", "#F5CDB4",
+                               "#D69C4E", "#ABDDDE", "#446455", "#FDD262",
+                               "#EE6A50", "#899DA4","#D3DDDC", "#9A8822",
+                               "#046C9A", "#000000"))+
   ylab('Relative Abunance')+
   theme(legend.position= c(0.67, 0.17), legend.key.height = unit(0.7, 'cm'),
         legend.key.width = unit(1.7, 'cm'),
@@ -68,7 +77,8 @@ ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
         axis.ticks.x = element_blank(), axis.title.x = element_blank(),
         legend.title = element_text(size = 14, family = "Georgia"),
         legend.text = element_text(size = 11, family = "Georgia"),
-        panel.background = element_rect(fill = "gray98"), panel.grid.major = element_blank())+
+        panel.background = element_rect(fill = "gray98"),
+        panel.grid.major = element_blank())+
   guides(fill=guide_legend(nrow=6, title.position = 'top'),
     theme(element_text(family = "Georgia")))
 
@@ -92,23 +102,27 @@ bartlett.test(Evenness ~ State_Region, data = asa) #FAILED: p = 0.0049
 #PERMANOVA Richness Comparison
 #No Difference in Alpha Diversity: Shannon & Simpson,
 #Differences in Alpha Diversity: Chao1 & Evenness
-adonis(Simpson ~ State_Region, data = asa, permutations = 999, pairwise = TRUE) #Not even: p = 0.001
+adonis(Simpson ~ State_Region, data = asa, permutations = 999, pairwise = TRUE)
+#Not even: p = 0.001
 
 #Plot Facet-Wrapped Boxpolot of Richness and Evenness
 alpha2 <- tidyr::gather(data.frame(alphas, sample_data(npro2)),
-                        key = "Measure", value = "Value", Shannon, Chao1, Simpson, Evenness)
+                        key = "Measure",
+                        value = "Value", Shannon, Chao1, Simpson, Evenness)
 ggplot(data = alpha2, aes(x = State_Region, y = Value, color = Family))+
   labs(color = "Host", x = "State Region")+
   facet_wrap(~Measure, scale = "free", nrow = 1)+
   geom_jitter(width = 0.2)+
-  stat_summary(aes(y = Value,group=1), fun=mean, colour="#899DA4", geom="line",group=1)+
+  stat_summary(aes(y = Value,group=1), fun=mean, colour="#899DA4",
+               geom="line",group=1)+
   scale_color_manual(values= the.royal)+
   theme(axis.text.x = element_text(angle = 70, hjust = 1, size = 10,
                                    colour = 'black', family = "Georgia"),
         panel.border = element_blank(), axis.title.y = element_blank(),
         legend.title = element_text(size = 14, family = "Georgia"),
         legend.text = element_text(size = 12, family = "Georgia"),
-        panel.grid.major = element_line(size = .3, linetype = 'solid', colour = 'gray80'),
+        panel.grid.major = element_line(size = .3, linetype = 'solid',
+                                        colour = 'gray80'),
         panel.background = element_rect(fill = "gray98"),
         axis.title = element_text(size = 16, family = "Georgia"))
 
@@ -159,7 +173,8 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
-ord <- ordinate(npro2, "MDS", distance = (phyloseq::distance(npro2, method = "wunifrac"))) #change model here
+ord <- ordinate(npro2, "MDS", distance =
+                (phyloseq::distance(npro2, method = "wunifrac")))
 plot_ordination(npro2, ord, color = "State_Region")+
   scale_color_manual(values = the.royal)+
   scale_fill_manual(values = the.royal)+
