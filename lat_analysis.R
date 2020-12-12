@@ -56,6 +56,14 @@ ggmap(rng)+
           legend.text = element_text(size = 14, family = "Georgia"),
           legend.title = element_text(size = 16, family = "Georgia"))
 
+#Plot Changes Across Latitudes
+#Make a column with % Proteobacteria
+acts$Proteo <- 0
+for(i in 1:nrow(acts)){
+    if(acts$Phylum == "Proteobacteria"){
+        acts$Proteo
+#ggplot color = % proteobacteria
+
 #Map California Regions
 #Load California datasets
 cali <- subset(map_data("state"), region == "california")
