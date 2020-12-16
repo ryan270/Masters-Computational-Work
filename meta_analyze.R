@@ -9,8 +9,8 @@
 #Set Directory and Load required Packages
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
 project_packages <- c('phyloseq', 'qiime2R','DESeq2', 'phangorn', 'grid',
-                      'ggplot2','DECIPHER',
-                      'gridExtra', 'vegan', 'wesanderson', 'dplyr', 'ggmap')
+                      'ggplot2','DECIPHER', 'gridExtra', 'vegan',
+                      'wesanderson', 'dplyr', 'ggmap')
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
