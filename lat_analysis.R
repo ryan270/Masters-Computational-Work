@@ -59,7 +59,7 @@ rng <- get_stamenmap(bbox = c(left = -130.32, bottom = 11.45,
 ggmap(rng)+
     geom_point(data = sample_data(amphib.obj),
                aes(x = Longitude, y = Latitude, col = Proteo),
-               size = 7, alpha = 0.8)+
+               size = 5, alpha = 0.8)+
     theme_void()+
     scale_colour_gradientn(colours =
                            wes_palette("Royal1", 370, type = "continuous"))+
