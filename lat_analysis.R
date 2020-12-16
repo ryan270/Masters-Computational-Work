@@ -8,9 +8,8 @@
 ##LOAD PACKAGES, DATA, AND DIRECTORY
 #Set Directory and Load required Packages
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
-project_packages <- c('phyloseq', 'qiime2R','DESeq2', 'phangorn', 'grid',
-                      'ggplot2','DECIPHER',
-                      'gridExtra', 'vegan', 'wesanderson', 'dplyr', 'ggmap')
+project_packages <- c('phyloseq', 'qiime2R', 'ggplot2', 'gridExtra',
+                      'vegan', 'wesanderson', 'dplyr', 'ggmap')
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
@@ -28,7 +27,7 @@ the.royal <- c("#899DA4", "#9A8822", "#F5CDB4",
 #----------------------------------------------------------------#
 
 ##REMOVE OUTLIERS: Remove Frogs with very high levels of Proteobacteria
-acts <- transform_sample_counts(amphib.obj, function(x) x/ sum(x)) %>%
+acts <- transform_sample_counts(amphib.obj, function(x) x/sum(x)) %>%
     psmelt()
 
 outs <- acts$Sample[which(acts$Abundance > .8)] %>%
@@ -38,31 +37,35 @@ nsmps <- setdiff(sample_names(amphib.obj), outs)
 amphib.obj <- prune_samples(nsmps, amphib.obj)
 
 #----------------------------------------------------------------#
+##TRANSFORM ABUNDANCE TABLE TO SUMMARY TABLE
+sample_data(amphib.obj)$Proteo <- 0
+for(i in 1:nrow(sample_data(amphib.obj))){
+        sample_data(amphib.obj)$Proteo[i] <-
+            subset_taxa(prune_samples(sample_names(amphib.obj)[i], amphib.obj),
+                        Phylum=="Proteobacteria") %>% sample_sums() /
+            sample_sums(prune_samples(sample_names(amphib.obj)[i], amphib.obj))
+}
+
+#----------------------------------------------------------------#
 ##MAP THE SAMPLES
 #Map All Samples on International Map
+#Render Map
 rng <- get_stamenmap(bbox = c(left = -130.32, bottom = 11.45,
                               right = -84.9, top = 42.99),
                      maptype = "terrain-background", zoom = 6,
                      crop = TRUE, color = "bw")
 
+#Plot Points on Map by %Proteobacteria
 ggmap(rng)+
     geom_point(data = sample_data(amphib.obj),
-               aes(x = Longitude, y = Latitude, col = Dataset),
-               size = 10, alpha = 0.05)+
-    scale_color_manual(values = c("#74A089", "#F8AFA8", "#EE6A50", "#FDDDA0"))+
-    guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+               aes(x = Longitude, y = Latitude, col = Proteo),
+               size = 7, alpha = 0.8)+
     theme_void()+
+    scale_colour_gradientn(colours =
+                           wes_palette("Royal1", 370, type = "continuous"))+
     theme(legend.position = c(0.25,0.25),
           legend.text = element_text(size = 14, family = "Georgia"),
           legend.title = element_text(size = 16, family = "Georgia"))
-
-#Plot Changes Across Latitudes
-#Make a column with % Proteobacteria
-acts$Proteo <- 0
-for(i in 1:nrow(acts)){
-    if(acts$Phylum == "Proteobacteria"){
-        acts$Proteo
-#ggplot color = % proteobacteria
 
 #Map California Regions
 #Load California datasets
