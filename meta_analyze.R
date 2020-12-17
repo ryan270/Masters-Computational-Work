@@ -286,6 +286,7 @@ da <- phyloseq_to_deseq2(amphib.obj, ~ State_Region)
 gm_mean = function(x, na.rm=TRUE){
   exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
 }
+
 geoMeans = apply(counts(da), 1, gm_mean)
 da <- estimateSizeFactors(da, geoMeans = geoMeans)
 da <- DESeq(da, fitType="local")
@@ -293,6 +294,7 @@ da <- DESeq(da, fitType="local")
 #For loop that Compares the significant OTU abundance differences by Region
 otu.list <- vector("list", length = 6)
 regs <- c(1,2,3,4,5,7)
+
 for (i in regs){
   al = 0.01
   altrg = levels(sample_data(amphib.obj)$State_Region)[i]
@@ -309,7 +311,7 @@ for (i in regs){
     scale_fill_manual(values = wes_palette("Royal2", 12, type = "continuous"))+
     ggtitle(paste("Sierra Nevada vs ", altrg, sep = ""))+
     theme(plot.title = element_text(family = "Georgia"),
-          axis.text.x = element_blank(),
+          axis.text.x = element_text(angle = 70, hjust = 1, size = 10),
           axis.ticks.x = element_blank(),
           axis.title.x = element_blank(), axis.title.y = element_blank(),
           panel.background = element_rect(fill = "gray98"),
@@ -317,7 +319,6 @@ for (i in regs){
           legend.text = element_text(size = 9),
           legend.key.size = unit(0.3, 'cm'))+
     guides(fill=guide_legend(nrow=6))
-
   otu.list[[i]] <- o
 }
 
