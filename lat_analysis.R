@@ -38,11 +38,11 @@ amphib.obj <- prune_samples(nsmps, amphib.obj)
 
 #----------------------------------------------------------------#
 ##TRANSFORM ABUNDANCE TABLE TO SUMMARY TABLE
-sample_data(amphib.obj)$Proteo <- 0
+sample_data(amphib.obj)$Pseudos <- 0
 for(i in 1:nrow(sample_data(amphib.obj))){
-        sample_data(amphib.obj)$Proteo[i] <-
+        sample_data(amphib.obj)$Pseudos[i] <-
             subset_taxa(prune_samples(sample_names(amphib.obj)[i], amphib.obj),
-                        Phylum=="Proteobacteria") %>% sample_sums() /
+                        Order=="Pseudomonadales") %>% sample_sums() /
             sample_sums(prune_samples(sample_names(amphib.obj)[i], amphib.obj))
 }
 
@@ -55,14 +55,29 @@ rng <- get_stamenmap(bbox = c(left = -130.32, bottom = 11.45,
                      maptype = "terrain-background", zoom = 6,
                      crop = TRUE, color = "bw")
 
+#Subplot of California
+casm <- get_stamenmap(bbox = c(top = 42.0716, left = -125.62345,
+                               bottom = 32.42387, right = -114.2196),
+                      maptype = "toner-background", zoom = 7,
+                      color = "color", crop = TRUE)
+
+ggmap(casm)+
+    geom_point(data = sample_data(amphib.obj),
+               aes(x = Longitude, y = Latitude, col = Pseudos),
+               size = 4, alpha = 0.8)+
+    scale_colour_gradientn(colours =
+                           wes_palette("Darjeeling1", 370, type = "continuous"))+
+    theme_void()
+
 #Plot Points on Map by %Proteobacteria
 ggmap(rng)+
     geom_point(data = sample_data(amphib.obj),
-               aes(x = Longitude, y = Latitude, col = Proteo),
-               size = 5, alpha = 0.8)+
-    theme_void()+
+               aes(x = Longitude, y = Latitude, col = Pseudos),
+               size = 4, alpha = 0.8)+
     scale_colour_gradientn(colours =
-                           wes_palette("Royal1", 370, type = "continuous"))+
+                           wes_palette("Royal2", 370, type = "continuous"))+
+    theme_void()
+
     theme(legend.position = c(0.25,0.25),
           legend.text = element_text(size = 14, family = "Georgia"),
           legend.title = element_text(size = 16, family = "Georgia"))
