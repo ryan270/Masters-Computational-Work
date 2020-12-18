@@ -2,9 +2,10 @@
 #This script will provid an indepth analysis
 #...of the microbial diversity of just salamanders.
 #This script is a modification of meta_analyze: the Meta Analysis Script
+
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
-project_packages <- c('phyloseq', 'qiime2R','DESeq2', 'phangorn', 'grid', 'ggplot2','DECIPHER',
-                      'gridExtra', 'vegan', 'wesanderson', 'dplyr', 'ggmap')
+project_packages <- c('phyloseq', 'qiime2R', 'grid', 'ggplot2', 'gridExtra',
+                      'vegan', 'wesanderson', 'dplyr', 'ggmap')
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
@@ -87,15 +88,16 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
 ord <- ordinate(sals, "MDS", distance = (phyloseq::distance(sals, method = "unifrac"))) #change model here
+
 plot_ordination(sals, ord, color = "State_Region", shape = "Order")+
   scale_color_manual(values = the.royal)+
   scale_fill_manual(values = the.royal)+
   geom_point(size = 5)+
-  stat_ellipse(type = "norm", level = 0.99)+
-  labs(shape = "Host", color = "Region", x = "PC2", y = "PC1")+
+#  stat_ellipse(type = "norm", level = 0.99)+
+  labs(title = "Unweighted Unifrac of Salamanders",
+       shape = "Host", color = "Region", x = "PC2", y = "PC1")+
   theme(panel.border = element_blank(),
         plot.title = element_text(size = 30, face = "bold"),
-        plot.subtitle = element_text(size = 22, face = "italic"),
         legend.title = element_text(size = 16, family = "Georgia"),
         legend.text = element_text(size = 11, family = "Georgia"),
         axis.title.x = element_text(size = 16, family = "Georgia"),

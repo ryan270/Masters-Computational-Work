@@ -1,6 +1,6 @@
-###SUBSET ANALYSIS SCRIPT -- SALAMANDERS
+###SUBSET ANALYSIS SCRIPT -- FROGS 
 #This script will provid an indepth analysis
-#...of the microbial diversity of just salamanders.
+#...of the microbial diversity of just frogs 
 #This script is a modification of meta_analyze: the Meta Analysis Script
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
 project_packages <- c('phyloseq', 'qiime2R','phangorn', 'grid', 'ggplot2',
