@@ -36,13 +36,12 @@ amphib.obj <- prune_samples(nsmps, amphib.obj)
 
 #----------------------------------------------------------------#
 ##TRANSFORM ABUNDANCE TABLE TO SUMMARY TABLE
-sample_data(amphib.obj)$xantho <- 0
-for(i in 1:nrow(sample_data(amphib.obj))){
-        sample_data(amphib.obj)$xantho[i] <-
-            subset_taxa(prune_samples(sample_names(amphib.obj)[i], amphib.obj),
-                        Order=="Xanthomonadales") %>% sample_sums() /
-            sample_sums(prune_samples(sample_names(amphib.obj)[i], amphib.obj))
-}
+#Ordinate Samples
+ord <- amphib.obj %>%
+    ordinate("MDS", distance =
+             phyloseq::distance(amphib.obj, method = "unifrac"))
+
+sample_data(amphib.obj)$PC1 <- ord$vectors[1:370]
 
 #----------------------------------------------------------------#
 ##MAP THE SAMPLES
@@ -50,13 +49,14 @@ for(i in 1:nrow(sample_data(amphib.obj))){
 #Render Map of all Area
 rng <- get_stamenmap(bbox = c(left = -130.32, bottom = 11.45,
                               right = -84.9, top = 42.99),
-                     maptype = "terrain-background", zoom = 6,
+                     maptype = "toner-background", zoom = 6,
                      crop = TRUE, color = "bw")
+
 
 #Subplot of California
 casm <- get_stamenmap(bbox = c(top = 42.0716, left = -125.62345,
                                bottom = 32.42387, right = -114.2196),
-                      maptype = "toner-2011", zoom = 7,
+                      maptype = "toner-background", zoom = 6,
                       color = "color", crop = TRUE)
 
 #Subplot of Mexico
@@ -65,19 +65,15 @@ mgm <- get_stamenmap(bbox = c(top = 22.13214, left = -94.6965,
                       maptype = "toner-background", zoom = 6,
                       color = "color", crop = TRUE)
 
-#Plot Points to Map by % Xanthomonadales
-ggmap(mgm)+
-    geom_point(data = sample_data(amphib.obj),
-               aes(x = Longitude, y = Latitude, col = xantho),
-               size = 4, alpha = 0.8)+
-    scale_colour_gradient(colours = the.royal,
-                           low = "#FDDDA0", high = "#EE6A50")+
-    theme_void()
 
-#Map California Regions
-#Load California datasets
-cali <- subset(map_data("state"), region == "california")
-cac <- subset(map_data("county"), region == "california")
+#Plot Points to Map by % Xanthomonadales
+ggmap(rng)+
+    geom_point(data = sample_data(amphib.obj),
+               aes(x = Longitude, y = Latitude, col = PC1),
+               size = 5, alpha = 0.6)+
+scale_color_gradientn(colours = wes_palette("Royal1", 370,
+                                            type = "continuous"))+
+    theme_void()
 
 #----------------------------------------------------------------#
 #-----------------------END--------------------------------------#
