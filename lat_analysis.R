@@ -1,9 +1,7 @@
-###META ANALYSIS SCRIPT
+###LATITUDE ANALYSIS SCRIPT
 
-#This script will provide an in depth analysis of microbial data previously
-#...analyzed in QIIME2. This script will render multiple plots that will
-#...elucidate the change in diversity on amphibians between regions along the
-#...Pacific Coast.
+#This script will provide an in depth analysis of the changes in microbial
+#...diversity based on the proximity to the poles.
 
 ##LOAD PACKAGES, DATA, AND DIRECTORY
 #Set Directory and Load required Packages
@@ -38,18 +36,18 @@ amphib.obj <- prune_samples(nsmps, amphib.obj)
 
 #----------------------------------------------------------------#
 ##TRANSFORM ABUNDANCE TABLE TO SUMMARY TABLE
-sample_data(amphib.obj)$Pseudos <- 0
+sample_data(amphib.obj)$xantho <- 0
 for(i in 1:nrow(sample_data(amphib.obj))){
-        sample_data(amphib.obj)$Pseudos[i] <-
+        sample_data(amphib.obj)$xantho[i] <-
             subset_taxa(prune_samples(sample_names(amphib.obj)[i], amphib.obj),
-                        Order=="Pseudomonadales") %>% sample_sums() /
+                        Order=="Xanthomonadales") %>% sample_sums() /
             sample_sums(prune_samples(sample_names(amphib.obj)[i], amphib.obj))
 }
 
 #----------------------------------------------------------------#
 ##MAP THE SAMPLES
 #Map All Samples on International Map
-#Render Map
+#Render Map of all Area
 rng <- get_stamenmap(bbox = c(left = -130.32, bottom = 11.45,
                               right = -84.9, top = 42.99),
                      maptype = "terrain-background", zoom = 6,
@@ -58,74 +56,28 @@ rng <- get_stamenmap(bbox = c(left = -130.32, bottom = 11.45,
 #Subplot of California
 casm <- get_stamenmap(bbox = c(top = 42.0716, left = -125.62345,
                                bottom = 32.42387, right = -114.2196),
-                      maptype = "toner-background", zoom = 7,
+                      maptype = "toner-2011", zoom = 7,
                       color = "color", crop = TRUE)
 
-ggmap(casm)+
-    geom_point(data = sample_data(amphib.obj),
-               aes(x = Longitude, y = Latitude, col = Pseudos),
-               size = 4, alpha = 0.8)+
-    scale_colour_gradientn(colours =
-                           wes_palette("Darjeeling1", 370, type = "continuous"))+
-    theme_void()
+#Subplot of Mexico
+mgm <- get_stamenmap(bbox = c(top = 22.13214, left = -94.6965,
+                               bottom = 12.86074, right = -89.24728),
+                      maptype = "toner-background", zoom = 6,
+                      color = "color", crop = TRUE)
 
-#Plot Points on Map by %Proteobacteria
-ggmap(rng)+
+#Plot Points to Map by % Xanthomonadales
+ggmap(mgm)+
     geom_point(data = sample_data(amphib.obj),
-               aes(x = Longitude, y = Latitude, col = Pseudos),
+               aes(x = Longitude, y = Latitude, col = xantho),
                size = 4, alpha = 0.8)+
-    scale_colour_gradientn(colours =
-                           wes_palette("Royal2", 370, type = "continuous"))+
+    scale_colour_gradient(colours = the.royal,
+                           low = "#FDDDA0", high = "#EE6A50")+
     theme_void()
-
-    theme(legend.position = c(0.25,0.25),
-          legend.text = element_text(size = 14, family = "Georgia"),
-          legend.title = element_text(size = 16, family = "Georgia"))
 
 #Map California Regions
 #Load California datasets
 cali <- subset(map_data("state"), region == "california")
 cac <- subset(map_data("county"), region == "california")
-
-#For Loop that Divides California Counties into Regions
-cac$zone <- as.character(0, quote = FALSE)
-
-for(i in 1:nrow(cac)){
-        srrs <- c("placer", "el dorado", "madera")
-        ccm <- c("san francisco", "alameda", "santa cruz",
-                 "monterey", "contra costa")
-        scal <- c("san diego")
-        ncal <- c("mendocino", "humboldt", "siskiyou", "shasta", "trinity",
-                  "del norte", "sonoma", "trinity")
-        if (is.element(cac$subregion[i], srrs)){
-            cac$zone[i] <- "Sierras"
-        }else if (is.element(cac$subregion[i], ccm)){
-            cac$zone[i] <- "Coastal California"
-        }else if (is.element(cac$subregion[i], scal)){
-            cac$zone[i] <- "Southern California"
-        }else if (is.element(cac$subregion[i], ncal)){
-            cac$zone[i] <- "Northern California"
-        }
-}
-
-#Plot Map of California
-ggplot(data = cali, mapping = aes(x = long, y = lat, group = group)) +
-    coord_fixed(1.3) +
-    geom_polygon(color = "black", fill = "gray85") +
-    geom_polygon(data = cac, aes(fill = zone), color = "gray90") +
-    scale_fill_manual(values = c("gray85", "#FDDDA0", "#74A089",
-                                 "#EE6A50", "#F8AFA8"),
-                      name = "State Regions",
-                      breaks = c("0", "Coastal California",
-                                 "Northern California", "Sierras",
-                                 "Southern California"),
-                      labels = c("Unsampled", "Coastal California",
-                                 "Northern California", "Sierras",
-                                 "Southern California")) +
-    theme_void() +
-    theme(legend.position = c(0.75,0.75),
-          legend.text = element_text(size = 14, family = "Georgia"),
-          legend.title = element_text(size = 16, family = "Georgia"))
 
 #----------------------------------------------------------------#
 #-----------------------END--------------------------------------#
