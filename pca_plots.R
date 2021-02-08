@@ -5,7 +5,7 @@
 ##LOAD LIBRARY & DATA
 #Set directory & load necessary packages
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/meta-metrics/')
-pcks <- c('ggplot2', 'qiime2R', 'dplyr', 'vegan', 'factoextra')
+pcks <- c('ggplot2', 'qiime2R', 'dplyr', 'vegan')
 sapply(pcks, require, character.only = TRUE)
 require(data.table)
 

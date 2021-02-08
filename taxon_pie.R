@@ -10,7 +10,7 @@ sapply(pcks, require, character.only = T)
 require(data.table)
 
 #Load .tsv files
-tax.1 <- as.data.frame(fread('AB_taxonomy.tsv'))
+tax.1 <- as.data.frame(fread('qiime_analyses/AB_taxonomy.tsv'))
 summary(tax.1)
 
 ##FORMATTING
