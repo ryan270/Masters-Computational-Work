@@ -95,7 +95,6 @@ plot_ordination(sals, ord, color = "State_Region", shape = "Order")+
   scale_color_manual(values = the.royal)+
   scale_fill_manual(values = the.royal)+
   geom_point(size = 5)+
-  stat_ellipse(type = "norm", level = 0.99)+
   labs(shape = "Host", color = "Region", x = "PC2", y = "PC1")+
   theme(panel.border = element_blank(),
         plot.title = element_text(size = 30, face = "bold"),
@@ -108,5 +107,3 @@ plot_ordination(sals, ord, color = "State_Region", shape = "Order")+
                                         colour = 'gray75'),
         axis.line = element_line(colour = 'black', size = 0.2),
         panel.background = element_rect(fill = "gray98"))
-
-
