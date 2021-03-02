@@ -250,7 +250,7 @@ ggplot(data = cali, mapping = aes(x = long, y = lat, group = group)) +
     geom_polygon(color = "black", fill = "gray85") +
     geom_polygon(data = cac, aes(fill = zone), color = "gray90") +
     scale_fill_manual(values = c("gray85", "#FDDDA0", "#74A089",
-                                 "#EE6A50", "#F8AFA8"),
+                                 "#EE6A50", "#F8D7A8"),
                       name = "State Regions",
                       breaks = c("0", "Coastal California",
                                  "Northern California", "Sierras",
