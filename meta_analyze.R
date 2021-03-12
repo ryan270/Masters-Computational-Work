@@ -66,12 +66,7 @@ txs$Phylum <- factor(txs$Phylum,
 abs<- ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
     facet_wrap(~State_Region, scales = "free_x", nrow = 3)+
     geom_bar(aes(), stat="identity", position="stack") +
-    scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
-                                 "#78B7C5", "#FF0000", "#00A08A", "#F2AD00",
-                                 "#F98400", "#46ACC8", "#ECCBAE", "#F5CDB4",
-                                 "#D69C4E", "#ABDDDE", "#446455", "#FDD262",
-                                 "#EE6A50", "#899DA4","#D3DDDC", "#9A8822",
-                                 "#046C9A", "#000000"))+
+    scale_fill_continuous(low = '#cad2c5', high = '#2f3e46')+
     ylab('Relative Abunance')+
     theme(legend.justification = c(1,0), legend.position = c(1,0),
           legend.key.height = unit(0.75, 'cm'),
