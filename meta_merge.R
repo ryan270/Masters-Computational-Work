@@ -33,14 +33,16 @@ semap <- select(semap, -c(Sample_Name, month, frog_location, extraction_date,
                           lifestage, ZE, pit_tag_id, frog_svl, ReversePrimer,
                           gosner_stage, frog_sex, swabber_name, site_id))
 
-#rename columns to match
+#Rename Columns to Match
 names(mgmap)[names(mgmap) == 'County_Municipio'] <- 'Site'
 names(spimap)[names(spimap) == 'county'] <- 'Site'
 names(spimap)[names(spimap) == 'lat'] <- 'Latitude'
 names(spimap)[names(spimap) == 'long'] <- 'Longitude'
 names(abmap)[names(abmap) == 'Lower_Clade'] <- 'subspecies'
-names(mgmap)[names(mgmap) == 'State_Province'] <- 'State_Region'
 names(mgmap)[names(mgmap) == 'Bd_Status'] <- 'Bd_status'
+
+#Make Mex/Gua One Contiguous Region
+mgmap$State_Region = "Central America"
 
 #Make lat/long numeric
 mgmap <- mgmap[-c(78:82),]
@@ -51,20 +53,22 @@ mgmap$Longitude <- as.numeric(mgmap$Longitude)
 ##ORGANIZE TAXONOMY
 #create new columns with Taxonomic Rank
 abmap$Family = "Plethodontidae"
-abmap$Order = 'Urodela(California)'
+abmap$Order = 'Salamander'
 spimap$Family = 'Plethodontidae'
-spimap$Order = 'Urodela(California)'
+spimap$Order = 'Salamander'
 spimap$Genus = 'Ensatina'
 spimap$Species = 'Ensatina_eschscholtzii'
 semap$Species = 'Rana_sierrae'
 semap$Genus = 'Rana'
 semap$Family = 'Ranidae'
-semap$Order = 'Anura'
+semap$Order = 'Frog'
 
-#Change Caudata
+#Change Caudata & Anura to Frog and Salamander
 for (i in 1:nrow(mgmap)) {
   if (mgmap$Order[i] == 'Caudata') {
-    mgmap$Order[i] == 'Urodela(Central_America)'
+    mgmap$Order[i] <- 'Salamander'
+  } else if (mgmap$Order[i] == 'Anura') {
+      mgmap$Order[i] <- 'Frog'
   }
 }
 
@@ -74,16 +78,16 @@ for (i in 1:nrow(mgmap)) {
 abmap$State_Region <- 0
 for(i in 1:nrow(abmap)){
   if (abmap$Site[i] == 'Alameda' || abmap$Site[i] == 'Monterey') {
-    abmap$State_Region[i] <- 'Coastal_California'
+    abmap$State_Region[i] <- 'Coastal California'
   } else if (abmap$Site[i] == 'Jackson_State_Forest' ||
              abmap$Site[i] == 'Siskiyou' || abmap$Site == 'Shasta' ||
              abmap$Site[i] == 'Humboldt' ||
              abmap$Site[i] == 'Leggett'){
-    abmap$State_Region[i] <- 'Northern_California'
+    abmap$State_Region[i] <- 'Northern California'
   } else if (abmap$Site[i] == 'Sierra_National_Forest'){
-    abmap$State_Region[i] <- 'Sierra_Nevada'
+    abmap$State_Region[i] <- 'Sierra Nevada'
   } else {
-    abmap$State_Region[i] <- 'Southern_California'
+    abmap$State_Region[i] <- 'Southern California'
   }
 }
 
@@ -91,18 +95,18 @@ spimap$State_Region <-0
 for(i in 1:nrow(spimap)){
   if (spimap$Site[i] == 'Alameda' || spimap$Site[i] == 'Santa.Cruz'
       || spimap$pop[i] == 'north.bay') {
-    spimap$State_Region[i] <- 'Coastal_California'
+    spimap$State_Region[i] <- 'Coastal California'
   } else if (spimap$Site[i] == 'Madera') {
-    spimap$State_Region[i] <- 'Sierra_Nevada'
+    spimap$State_Region[i] <- 'Sierra Nevada'
   } else if (spimap$pop[i] == 'annadel') {
-    spimap$State_Region[i] <- 'Northern_California'
+    spimap$State_Region[i] <- 'Northern California'
   } else {
-    spimap$State_Region[i] <- 'Southern_California'
+    spimap$State_Region[i] <- 'Southern California'
   }
 }
 spimap <- select(spimap, -c(pop))
 
-semap$State_Region = 'Sierra_Nevada'
+semap$State_Region = 'Sierra Nevada'
 
 
 ##ADD GPS
@@ -157,8 +161,8 @@ meta_2 <- full_join(abmap, spimap, by = c('SampleID', 'Genus', 'Species',
 meta_3 <- full_join(meta_1, meta_2, by = c('SampleID', 'Genus', 'Species',
                                            'Family', 'Order', 'subspecies',
                                            'Habitat', 'State_Region', 'Dataset',
-                                           'Latitude', 'Longitude', 'Site',
-                                           'Bd_status'), copy = TRUE)
+                                           'Latitude',
+                                           'Longitude', 'Site', 'Bd_status'), copy = TRUE)
 
 ##EXPORT: write out table
 write.table(meta_3, file = 'merged_metadata.txt', append = FALSE, sep = '\t',
