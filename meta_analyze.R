@@ -62,11 +62,15 @@ txs$Phylum <- factor(txs$Phylum,
                                      "WS3", "[Thermi]",
                                      "< 1% Abundance"))
 
+#Make a Color Palette
+gns <- colorRampPalette(colors = c("#2f3e46", "#354f52", "#52796f", "#84a98c",
+                                   "#cad2c5"))(22)
+
 #Plot Relative Abundances
 abs<- ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
     facet_wrap(~State_Region, scales = "free_x", nrow = 3)+
     geom_bar(aes(), stat="identity", position="stack") +
-    scale_fill_continuous(low = '#cad2c5', high = '#2f3e46')+
+    scale_fill_manual(values = gns)+
     ylab('Relative Abunance')+
     theme(legend.justification = c(1,0), legend.position = c(1,0),
           legend.key.height = unit(0.75, 'cm'),
@@ -82,9 +86,7 @@ abs<- ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
           panel.grid.major = element_blank())+
     guides(fill=guide_legend(nrow=6, title.position = 'top'),
        theme(element_text(family = "Georgia")))
-
-#View Plot
-abs
+#View Plot abs
 
 #Fill Label Matches the Region Color
 g <- ggplot_gtable(ggplot_build(abs))
@@ -125,13 +127,15 @@ alpha2 <- tidyr::gather(data.frame(alphas, sample_data(amphib.obj)),
                         key = "Measure",
                         value = "Value", Shannon, Chao1, Simpson, Evenness)
 
-ggplot(data = alpha2, aes(x = State_Region, y = Value, color = Order))+
-  labs(color = "Host", x = "State Region")+
+ggplot(data = alpha2, aes(x = State_Region, y = Value, color = State_Region,
+                          shape = Order))+
+  labs(color = "State Region", x = "State Region", shape = "Host")+
   facet_wrap(~Measure, scale = "free", nrow = 1)+
   geom_jitter(width = 0.2)+
   stat_summary(aes(y = Value,group=1),
                fun=mean, colour="#899DA4", geom="line",group=1)+
-  scale_color_manual(values= c('#EE6A50', '#F5CDB4', '#9A8822', '#FA8FA8'))+
+  scale_color_manual(values= c("#F8AFA8", "#FDDDA0", "#899DA4", "#EE6A50",
+                               "#899DA4"))+
   theme(axis.text.x = element_text(angle = 70, hjust = 1, size = 10,
                                    colour = 'black', family = "Georgia"),
         panel.border = element_blank(), axis.title.y = element_blank(),
@@ -190,11 +194,12 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
 ord <- amphib.obj %>%
-             phyloseq::distance(amphib.obj, method = "wunifrac")
+             phyloseq::distance(amphib.obj, method = "unifrac")
 
 plot_ordination(amphib.obj, ord, color = "State_Region", shape = "Order")+
   scale_color_manual(values = the.royal)+
-  scale_fill_manual(values = the.royal)+
+  scale_fill_manual(values = c("#899DA4", "#899DA4", "#EE6A50", "#F8AFA8",
+                               "#FDDDA0"))+
   geom_point(size = 5)+
   #annotate(geom = 'text', x = 0, y = 0.25, label = 'R. sierrae', size = 6)+
   #stat_ellipse(type = "norm", level = 0.99)+
