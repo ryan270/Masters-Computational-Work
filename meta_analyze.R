@@ -30,6 +30,7 @@ sample_data(amphib.obj)$State_Region <-
               levels = c("Northern California", "Coastal California",
                          "Sierra Nevada", "Southern California",
                          "Central America"))
+
 #----------------------------------------------------------------#
 #----------------------------------------------------------------#
 
@@ -337,9 +338,9 @@ for (i in regs){
   o = ggplot(res_sig, aes(x = Order, y = log2FoldChange))+
     geom_col(aes(fill = Phylum), width = 1)+
     scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
-                                 "#78B7C5", "#FF0000", "#00A08A","#ECCBAE",
+                                 "#78B7C5", "#CC99CC", "#00A08A","#FFC307",
                                  "#D69C4E", "#FDD262", "#EE6A50", "#D3DDDC",
-                                 "#000000"))+
+                                 "#97D992"))+
     ggtitle(paste("Sierra Nevada vs ", altrg, sep = ""))+
     theme(plot.title = element_text(family = "Georgia"),
           axis.text.x = element_blank(),
