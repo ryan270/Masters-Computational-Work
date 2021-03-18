@@ -24,6 +24,12 @@ amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza",
 the.royal <- c("#899DA4", "#9A8822", "#F5CDB4",
                "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
 
+#Order Region Levels
+sample_data(amphib.obj)$State_Region <-
+    factor(sample_data(amphib.obj)$State_Region,
+              levels = c("Northern California", "Coastal California",
+                         "Sierra Nevada", "Southern California",
+                         "Central America"))
 #----------------------------------------------------------------#
 #----------------------------------------------------------------#
 
@@ -63,7 +69,7 @@ txs$Phylum <- factor(txs$Phylum,
                                      "< 1% Abundance"))
 
 #Plot Relative Abundances
-abs<- ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
+abs <- ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
     facet_wrap(~State_Region, scales = "free_x", nrow = 3)+
     geom_bar(aes(), stat="identity", position="stack") +
     scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
@@ -87,12 +93,14 @@ abs<- ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
           panel.grid.major = element_blank())+
     guides(fill=guide_legend(nrow=6, title.position = 'top'),
        theme(element_text(family = "Georgia")))
-#View Plot abs
+
+#View Plot
+abs
 
 #Fill Label Matches the Region Color
 g <- ggplot_gtable(ggplot_build(abs))
 stripr <- which(grepl('strip-t', g$layout$name))
-flls <- c("#899DA4", "#899DA4", "#EE6A50", "#F8AFA8", "#FDDDA0")
+flls <- c("#F8AFA8", "#EE6A50", "#9A8822", "#899DA4", "#FDDDA0")
 k <- 1
 for(i in c(32,34,35,36,37)) {
     j <- which(grepl('rect', g$grobs[[i]]$grobs[[1]]$childrenOrder))
@@ -128,15 +136,14 @@ alpha2 <- tidyr::gather(data.frame(alphas, sample_data(amphib.obj)),
                         key = "Measure",
                         value = "Value", Shannon, Chao1, Simpson, Evenness)
 
-ggplot(data = alpha2, aes(x = State_Region, y = Value, color = State_Region,
-                          shape = Order))+
-  labs(color = "State Region", x = "State Region", shape = "Host")+
+ggplot(data = alpha2, aes(x = State_Region, y = Value, color = State_Region))+
+  labs(color = "State Region", x = "State Region")+
   facet_wrap(~Measure, scale = "free", nrow = 1)+
   geom_jitter(width = 0.2)+
-  stat_summary(aes(y = Value,group=1),
-               fun=mean, colour="#899DA4", geom="line",group=1)+
-  scale_color_manual(values= c("#F8AFA8", "#FDDDA0", "#899DA4", "#EE6A50",
-                               "#899DA4"))+
+  stat_summary(aes(y = Value),
+               fun.data=mean_cl_normal, colour="#000000", geom="errorbar")+
+  scale_color_manual(values = c("#899DA4", "#FDDDA0", "#EE6A50", "#9A8822",
+                               "#F8AFA8"))+
   theme(axis.text.x = element_text(angle = 70, hjust = 1, size = 10,
                                    colour = 'black', family = "Georgia"),
         panel.border = element_blank(), axis.title.y = element_blank(),
@@ -172,9 +179,9 @@ for (i in dist_models) {
 }
 
 #Merges all of the distances from all methods into a dataframe
-adm <- ldply(pca.list, function(x) x$data)
+adm <- plyr::ldply(pca.list, function(x) x$data)
 names(adm)[1] <- "distance"
-print(pca.list[['bray']])
+print(pca.list[['unifrac']])
 
 #Plots Methods Confirming Distinctions
 ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
@@ -194,17 +201,17 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
-ord <- amphib.obj %>%
-             phyloseq::distance(amphib.obj, method = "unifrac")
+ds <- phyloseq::distance(amphib.obj, method = "unifrac")
+ord <- ordinate(amphib.obj, "MDS", distance = ds)
 
+#Plot
 plot_ordination(amphib.obj, ord, color = "State_Region", shape = "Order")+
-  scale_color_manual(values = the.royal)+
-  scale_fill_manual(values = c("#899DA4", "#899DA4", "#EE6A50", "#F8AFA8",
-                               "#FDDDA0"))+
+  scale_color_manual(values = c("#899DA4", "#FDDDA0", "#EE6A50", "#9A8822",
+                               "#F8AFA8"))+
   geom_point(size = 5)+
   #annotate(geom = 'text', x = 0, y = 0.25, label = 'R. sierrae', size = 6)+
   #stat_ellipse(type = "norm", level = 0.99)+
-  labs(shape = "Host", color = "Region", x = "PC2", y = "PC1")+
+  labs(shape = "Host", color = "Region")+
   theme(panel.border = element_blank(),
         plot.title = element_text(size = 30, face = "bold"),
         plot.subtitle = element_text(size = 22, face = "italic"),
@@ -229,7 +236,7 @@ ggmap(rng)+
     geom_point(data = sample_data(amphib.obj),
                aes(x = Longitude, y = Latitude, col = Dataset),
                size = 10, alpha = 0.05)+
-    scale_color_manual(values = c("#74A089", "#F8AFA8", "#EE6A50", "#FDDDA0"))+
+    scale_color_manual(values = c("#9A8822", "#F8AFA8", "#EE6A50", "#FDDDA0"))+
     guides(colour = guide_legend(override.aes = list(alpha = 1)))+
     theme_void()+
     theme(legend.position = c(0.25,0.25),
@@ -268,7 +275,7 @@ ggplot(data = cali, mapping = aes(x = long, y = lat, group = group)) +
     geom_polygon(color = "black", fill = "gray85") +
     geom_polygon(data = cac, aes(fill = zone), color = "gray90") +
     scale_fill_manual(values = c("gray85", "#FDDDA0", "#899DA4",
-                                 "#EE6A50", "#899DA4"),
+                                 "#EE6A50", "#9A8822"),
                       name = "State Regions",
                       breaks = c("Coastal California - Prado-Irwin et al. 2017",
                                  "Northern California - Bird et a., 2018",
@@ -303,8 +310,6 @@ gskmn #shows that I have 6 clusters in dataset
 #----------------------------------------------------------------#
 ##OTU ANALYSIS: Calculate the Difference in OTU Abundance Between Regions
 #Convert physeq object to DESeq object
-sample_data(amphib.obj)$State_Region <-
-    as.factor(sample_data(amphib.obj)$State_Region)
 da <- phyloseq_to_deseq2(amphib.obj, ~ State_Region)
 gm_mean = function(x, na.rm=TRUE){
   exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
@@ -315,14 +320,14 @@ da <- estimateSizeFactors(da, geoMeans = geoMeans)
 da <- DESeq(da, fitType="local")
 
 #For loop that Compares the significant OTU abundance differences by Region
-otu.list <- vector("list", length = 6)
-regs <- c(1,2,3,4,5,7)
+otu.list <- vector("list", length = 4)
+regs <- c(1,2,4,5)
 
 for (i in regs){
   al = 0.01
   altrg = levels(sample_data(amphib.obj)$State_Region)[i]
   res = results(da, contrast =
-                c("State_Region", "Sierra_Nevada", altrg), alpha = al)
+                c("State_Region", "Sierra Nevada", altrg), alpha = al)
   res = res[order(res$padj, na.last=NA), ]
   res_sig = res[(res$padj < al), ]
   res_sig = cbind(as(res_sig, "data.frame"),
@@ -331,10 +336,13 @@ for (i in regs){
   o = NULL
   o = ggplot(res_sig, aes(x = Order, y = log2FoldChange))+
     geom_col(aes(fill = Phylum), width = 1)+
-    scale_fill_manual(values = wes_palette("Royal2", 12, type = "continuous"))+
+    scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
+                                 "#78B7C5", "#FF0000", "#00A08A","#ECCBAE",
+                                 "#D69C4E", "#FDD262", "#EE6A50", "#D3DDDC",
+                                 "#000000"))+
     ggtitle(paste("Sierra Nevada vs ", altrg, sep = ""))+
     theme(plot.title = element_text(family = "Georgia"),
-          axis.text.x = element_text(angle = 70, hjust = 1, size = 10),
+          axis.text.x = element_blank(),
           axis.ticks.x = element_blank(),
           axis.title.x = element_blank(), axis.title.y = element_blank(),
           panel.background = element_rect(fill = "gray98"),
@@ -346,9 +354,8 @@ for (i in regs){
 }
 
 #Plot the OTU abundances
-grid.arrange(grobs = list(otu.list[[1]], otu.list[[2]], otu.list[[3]],
-                          otu.list[[4]], otu.list[[5]], otu.list [[7]]),
-             ncol = 3,
+grid.arrange(grobs = list(otu.list[[1]], otu.list[[2]], otu.list[[4]],
+                          otu.list[[5]]), ncol = 3,
              bottom =textGrob("Order",
                               gp=gpar(fontsize=22, fontfamily = "Georgia")),
              left = textGrob("log2FoldChange", rot = 90,

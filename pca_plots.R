@@ -47,7 +47,7 @@ beta2.frame <- as.data.frame(weighted_pco$data$Vectors)%>%
 #Beta Diversity Plot
 the.royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
 
-ggplot(beta2.frame, aes(x = PC2, y = PC1, color = State_Region))+
+ggplot(beta.frame, aes(x = PC2, y = PC1, color = State_Region))+
   geom_point(aes(shape = Order), size = 4)+
   xlab(paste("PC1: ",
              round(100*weighted_pco$data$ProportionExplained[1]), "%"))+
