@@ -227,22 +227,24 @@ plot_ordination(amphib.obj, ord, color = "State_Region", shape = "Order")+
 
 #----------------------------------------------------------------#
 ##MAP THE SAMPLES
-#Map All Samples on International Map
-rng <- get_stamenmap(bbox = c(left = -130.32, bottom = 11.45,
-                              right = -84.9, top = 42.99),
-                     maptype = "terrain-background", zoom = 6,
+#Map Mex/Gua Samples
+mgm <- get_stamenmap(bbox = c(bottom = 14.418492, left = -92.8479,
+                              top = 16.098598, right = -90.227808),
+                     maptype = "terrain-background", zoom = 9,
                      crop = TRUE, color = "bw")
 
-ggmap(rng)+
-    geom_point(data = sample_data(amphib.obj),
-               aes(x = Longitude, y = Latitude, col = Dataset),
-               size = 10, alpha = 0.05)+
-    scale_color_manual(values = c("#9A8822", "#F8AFA8", "#EE6A50", "#FDDDA0"))+
-    guides(colour = guide_legend(override.aes = list(alpha = 1)))+
+ggmap(mgm)+
+    geom_point(data = sample_data(amphib.obj), color = "#F8AFA8",
+               aes(x = Longitude, y = Latitude, shape = Order),
+               size = 8, alpha = 0.6)+
     theme_void()+
-    theme(legend.position = c(0.25,0.25),
+    theme(legend.position = c(0.15,0.15),
           legend.text = element_text(size = 14, family = "Georgia"),
-          legend.title = element_text(size = 16, family = "Georgia"))
+          legend.title = element_text(size = 16, family = "Georgia"))+
+    geom_text(label = "Mexico", nudge_x = 0.4, nudge_y = 1.3, size = 12,
+              family = "Georgia")+
+    geom_text(label = "Guatemala", nudge_x = 1.55, nudge_y = 1.4, size = 12,
+              family = "Georgia")
 
 #Map California Regions
 #Load California Map Data
