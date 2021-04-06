@@ -9,8 +9,7 @@
 #Set Directory and Load required Packages
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
 project_packages <- c('phyloseq', 'qiime2R','DESeq2', 'phangorn', 'grid',
-                      'ggplot2','DECIPHER', 'gridExtra', 'vegan',
-                      'wesanderson', 'dplyr', 'ggmap')
+                      'gridExtra', 'vegan', 'ggmap', 'tidyverse')
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
@@ -53,7 +52,7 @@ txs <- amphib.obj %>%
     psmelt()
 
 txs$Phylum <- as.character(txs$Phylum)
-txs$Phylum[txs$Abundance < 0.01] <- "< 1% Abundance"
+txs$Phylum[txs$Abundance < 0.01] <- "<1% Abundance"
 
 #Re-Order Levels
 txs$Phylum <- factor(txs$Phylum,
@@ -67,7 +66,7 @@ txs$Phylum <- factor(txs$Phylum,
                                      "Nitrospirae","Planctomycetes",
                                      "Proteobacteria","TM7", "Verrucomicrobia",
                                      "WS3", "[Thermi]",
-                                     "< 1% Abundance"))
+                                     "<1% Abundance"))
 
 #Plot Relative Abundances
 abs <- ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
@@ -230,7 +229,7 @@ plot_ordination(amphib.obj, ord, color = "State_Region", shape = "Order")+
 #Map Mex/Gua Samples
 mgm <- get_stamenmap(bbox = c(bottom = 14.418492, left = -92.8479,
                               top = 16.098598, right = -90.227808),
-                     maptype = "terrain-background", zoom = 9,
+                     maptype = "toner-background", zoom = 9,
                      crop = TRUE, color = "bw")
 
 ggmap(mgm)+
@@ -238,7 +237,7 @@ ggmap(mgm)+
                aes(x = Longitude, y = Latitude, shape = Order),
                size = 8, alpha = 0.6)+
     theme_void()+
-    theme(legend.position = c(0.15,0.15),
+    theme(legend.position = c(0.8,0.14),
           legend.text = element_text(size = 14, family = "Georgia"),
           legend.title = element_text(size = 16, family = "Georgia"))+
     geom_text(label = "Mexico", nudge_x = 0.4, nudge_y = 1.3, size = 12,
