@@ -8,7 +8,7 @@
 ##LOAD PACKAGES, DATA, AND DIRECTORY
 #Set Directory and Load required Packages
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
-project_packages <- c('phyloseq', 'qiime2R','DESeq2', 'phangorn', 'grid',
+project_packages <- c('phyloseq', 'qiime2R','DESeq2', 'grid',
                       'gridExtra', 'vegan', 'ggmap', 'tidyverse')
 sapply(project_packages, require, character.only = TRUE)
 
