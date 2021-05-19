@@ -321,7 +321,8 @@ geoMeans = apply(counts(da), 1, gm_mean)
 da <- estimateSizeFactors(da, geoMeans = geoMeans)
 da <- DESeq(da, fitType="local")
 
-#For loop that Compares the significant OTU abundance differences by Region
+#For loop that Compares the significant OTU abundance of each Region
+#with Sierra Nevada
 otu.list <- vector("list", length = 4)
 regs <- c(1,2,4,5)
 
