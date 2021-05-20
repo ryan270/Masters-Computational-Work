@@ -326,42 +326,42 @@ da <- DESeq(da, fitType="local")
 # Need to break down for loop to individual comparisons
 
 #Sierra vs Northern California
-res.0 = results(da, contrast =
+res.1 = results(da, contrast =
               c("State_Region", "Sierra Nevada", "Northern California"), alpha = 0.01)
-res.0 = res.0[order(res.0$padj, na.last=NA), ]
-res_sig.0 = res.0[(res.0$padj < 0.01), ]
-res_sig.0 = cbind(as(res_sig.0, "data.frame"),
-                as(tax_table(amphib.obj)[rownames(res_sig.0), ], "matrix"))
+res.1 = res.1[order(res.1$padj, na.last=NA), ]
+res_sig.1 = res.1[(res.1$padj < 1.11), ]
+res_sig.1 = cbind(as(res_sig.1, "data.frame"),
+                as(tax_table(amphib.obj)[rownames(res_sig.1), ], "matrix"))
 
 #Sierra vs Coastal California
-res.1 = results(da, contrast =
-              c("State_Region", "Sierra Nevada", "Coastal California"), alpha = 0.01)
-res.1 = res.1[order(res.1$padj, na.last=NA), ]
-res.1_sig = res.1[(res.1$padj < 0.01), ]
-res.1_sig = cbind(as(res.1_sig, "data.frame"),
-                as(tax_table(amphib.obj)[rownames(res.1_sig), ], "matrix"))
-
-#Sierra vs Southern California
 res.2 = results(da, contrast =
-              c("State_Region", "Sierra Nevada", "Southern California"), alpha = 0.01)
+              c("State_Region", "Sierra Nevada", "Coastal California"), alpha = 0.01)
 res.2 = res.2[order(res.2$padj, na.last=NA), ]
-res.2_sig = res.2[(res.2$padj < 0.01), ]
+res.2_sig = res.2[(res.2$padj < 0.02), ]
 res.2_sig = cbind(as(res.2_sig, "data.frame"),
                 as(tax_table(amphib.obj)[rownames(res.2_sig), ], "matrix"))
 
-#Sierra vs Central America
+#Sierra vs Southern California
 res.3 = results(da, contrast =
-              c("State_Region", "Sierra Nevada", "Central America"), alpha = 0.01)
+              c("State_Region", "Sierra Nevada", "Southern California"), alpha = 0.01)
 res.3 = res.3[order(res.3$padj, na.last=NA), ]
 res.3_sig = res.3[(res.3$padj < 0.01), ]
 res.3_sig = cbind(as(res.3_sig, "data.frame"),
                 as(tax_table(amphib.obj)[rownames(res.3_sig), ], "matrix"))
 
+#Sierra vs Central America
+res.4 = results(da, contrast =
+              c("State_Region", "Sierra Nevada", "Central America"), alpha = 0.01)
+res.4 = res.4[order(res.4$padj, na.last=NA), ]
+res.4_sig = res.4[(res.4$padj < 0.01), ]
+res.4_sig = cbind(as(res.4_sig, "data.frame"),
+                as(tax_table(amphib.obj)[rownames(res.4_sig), ], "matrix"))
+
 
 #For Loop for Plots
 otu.list <- vector("list", length = 4)
 
-for (i in 0:3){
+for (i in 1:4){
   o = NULL
   o = ggplot(res.[i]_sig, aes(x = Order, y = log2FoldChange))+
     geom_col(aes(fill = Phylum), width = 1)+
