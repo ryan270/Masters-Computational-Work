@@ -323,9 +323,43 @@ da <- DESeq(da, fitType="local")
 
 #For loop that Compares the significant OTU abundance of each Region
 #with Sierra Nevada
+# Need to break down for loop to individual comparisons
 otu.list <- vector("list", length = 4)
 regs <- c(1,2,4,5)
 
+#Sierra vs Northern California
+res = results(da, contrast =
+              c("State_Region", "Sierra Nevada", "Northern California"), alpha = al)
+res = res[order(res$padj, na.last=NA), ]
+res_sig = res[(res$padj < al), ]
+res_sig = cbind(as(res_sig, "data.frame"),
+                as(tax_table(amphib.obj)[rownames(res_sig), ], "matrix"))
+
+#Sierra vs Coastal California
+res.1.1 = res.1ults(da, contrast =
+              c("State_Region", "Sierra Nevada", "Coastal California"), alpha = al)
+res.1 = res.1[order(res.1$padj, na.last=NA), ]
+res.1_sig = res.1[(res.1$padj < al), ]
+res.1_sig = cbind(as(res.1_sig, "data.frame"),
+                as(tax_table(amphib.obj)[rownames(res.1_sig), ], "matrix"))
+
+#Sierra vs Southern California
+res.2 = res.2ults(da, contrast =
+              c("State_Region", "Sierra Nevada", "Southern California"), alpha = al)
+res.2 = res.2[order(res.2$padj, na.last=NA), ]
+res.2_sig = res.2[(res.2$padj < al), ]
+res.2_sig = cbind(as(res.2_sig, "data.frame"),
+                as(tax_table(amphib.obj)[rownames(res.2_sig), ], "matrix"))
+
+#Sierra vs Central America
+res.3 = res.3ults(da, contrast =
+              c("State_Region", "Sierra Nevada", "Central America"), alpha = al)
+res.3 = res.3[order(res.3$padj, na.last=NA), ]
+res.3_sig = res.3[(res.3$padj < al), ]
+res.3_sig = cbind(as(res.3_sig, "data.frame"),
+                as(tax_table(amphib.obj)[rownames(res.3_sig), ], "matrix"))
+
+#Original For Loop
 for (i in regs){
   al = 0.01
   altrg = levels(sample_data(amphib.obj)$State_Region)[i]
