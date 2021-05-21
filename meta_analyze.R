@@ -360,6 +360,7 @@ res.4_sig = res.4[(res.4$padj < 0.01), ]
 res.4_sig = cbind(as(res.4_sig, "data.frame"),
                 as(tax_table(amphib.obj)[rownames(res.4_sig), ], "matrix"))
 
+#Merge Results
 otu_res <- Reduce(function(x,y) merge(x,y, all = TRUE), list(res.1_sig, res.2_sig,
                                                              res.3_sig, res.4_sig))
 
