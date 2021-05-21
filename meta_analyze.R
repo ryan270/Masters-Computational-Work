@@ -368,12 +368,6 @@ otu_res <- Reduce(function(x,y) merge(x,y, all = TRUE), list(res.1_sig, res.2_si
 #For Loop for Plots
 otu.list <- vector("list", length = 4)
 
-for (i in c(1:4)){
-    o = NULL
-    o =     otu.list[[i]] <- o
-}
-
-
 #Original For Loop
 for (i in regs){
   altrg = levels(sample_data(amphib.obj)$State_Region)[i]
