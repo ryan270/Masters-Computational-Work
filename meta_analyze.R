@@ -359,7 +359,6 @@ res.4_sig = res.4[(res.4$padj < 0.01), ]
 res.4_sig = cbind(as(res.4_sig, "data.frame"),
                 as(tax_table(amphib.obj)[rownames(res.4_sig), ], "matrix"))
 
-
 #Modified For Loop
 for (i in c(1,2,4,5)){
   altrg = levels(sample_data(amphib.obj)$State_Region)[i]
@@ -367,7 +366,8 @@ for (i in c(1,2,4,5)){
                 c("State_Region", "Sierra Nevada", altrg), alpha = 0.01)
   res = res[order(res$padj, na.last=NA), ]
   res_sig = res[(res$padj < 0.01), ]
-  assign(paste0("res_sig", i), cbind(as(res_sig[i], "data.frame"),
+  res_sig$Comparison <- as.factor(paste0("Sierra Nevada vs ", altrg))
+  assign(paste0("res_sig", i), cbind(as(res_sig, "data.frame"),
         as(tax_table(amphib.obj)[rownames(res_sig), ], "matrix")))
   #Merge & Delete Tables
   while(i == 5){
@@ -378,9 +378,9 @@ for (i in c(1,2,4,5)){
   }
 }
 
-#plot
-o = NULL
-o = ggplot(res_sig, aes(x = Order, y = log2FoldChange))+
+
+#Plot Whole Dataset
+ggplot(res_sig, aes(x = Order, y = log2FoldChange))+
     geom_col(aes(fill = Phylum), width = 1)+
     scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
                                  "#78B7C5", "#CC99CC", "#00A08A","#FFC307",
@@ -396,7 +396,6 @@ theme(plot.title = element_text(family = "Georgia"),
       legend.text = element_text(size = 9),
       legend.key.size = unit(0.3, 'cm'))+
 guides(fill=guide_legend(nrow=6))
-  otu.list[[i]] <- o
 
 #Plot the OTU abundances
 grid.arrange(grobs = list(otu.list[[1]], otu.list[[2]], otu.list[[4]],
