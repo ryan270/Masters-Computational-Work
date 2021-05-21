@@ -324,6 +324,8 @@ da <- DESeq(da, fitType="local")
 #For loop that Compares the significant OTU abundance of each Region
 #with Sierra Nevada
 # Need to break down for loop to individual comparisons
+#Try merging the results after they've been run
+
 
 #Sierra vs Northern California
 res.1 = results(da, contrast =
@@ -333,22 +335,6 @@ res.1_sig = res.1[(res.1$padj < 0.01), ]
 res.1_sig = cbind(as(res.1_sig, "data.frame"),
                 as(tax_table(amphib.obj)[rownames(res.1_sig), ], "matrix"))
 
-#Plot 1
-ggplot(res.1_sig, aes(x = Order, y = log2FoldChange))+
-        geom_col(aes(fill = Phylum), width = 1)+
-        scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
-                                 "#78B7C5", "#CC99CC", "#00A08A","#FFC307",
-                                 "#D69C4E", "#FDD262", "#EE6A50", "#D3DDDC",
-                                 "#97D992"))+
-        guides(fill=guide_legend(nrow=6))+
-        theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-          axis.title.x = element_blank(), axis.title.y = element_blank(),
-          panel.background = element_rect(fill = "gray98"),
-          legend.position = c(0.65,0.85), legend.title = element_blank(),
-          legend.text = element_text(size = 9),
-          legend.key.size = unit(0.3, 'cm'))+
-
 #Sierra vs Coastal California
 res.2 = results(da, contrast =
               c("State_Region", "Sierra Nevada", "Coastal California"), alpha = 0.01)
@@ -356,22 +342,6 @@ res.2 = res.2[order(res.2$padj, na.last=NA), ]
 res.2_sig = res.2[(res.2$padj < 0.01), ]
 res.2_sig = cbind(as(res.2_sig, "data.frame"),
                 as(tax_table(amphib.obj)[rownames(res.2_sig), ], "matrix"))
-
-#Plot 2
-ggplot(res.1_sig, aes(x = Order, y = log2FoldChange))+
-        geom_col(aes(fill = Phylum), width = 1)+
-        scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
-                                 "#78B7C5", "#CC99CC", "#00A08A","#FFC307",
-                                 "#D69C4E", "#FDD262", "#EE6A50", "#D3DDDC",
-                                 "#97D992"))+
-        guides(fill=guide_legend(nrow=6))+
-        theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-          axis.title.x = element_blank(), axis.title.y = element_blank(),
-          panel.background = element_rect(fill = "gray98"),
-          legend.position = c(0.65,0.85), legend.title = element_blank(),
-          legend.text = element_text(size = 9),
-          legend.key.size = unit(0.3, 'cm'))+
 
 
 #Sierra vs Southern California
@@ -382,23 +352,6 @@ res.3_sig = res.3[(res.3$padj < 0.01), ]
 res.3_sig = cbind(as(res.3_sig, "data.frame"),
                 as(tax_table(amphib.obj)[rownames(res.3_sig), ], "matrix"))
 
-#Plot 3
-ggplot(res.1_sig, aes(x = Order, y = log2FoldChange))+
-        geom_col(aes(fill = Phylum), width = 1)+
-        scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
-                                 "#78B7C5", "#CC99CC", "#00A08A","#FFC307",
-                                 "#D69C4E", "#FDD262", "#EE6A50", "#D3DDDC",
-                                 "#97D992"))+
-        guides(fill=guide_legend(nrow=6))+
-        theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-          axis.title.x = element_blank(), axis.title.y = element_blank(),
-          panel.background = element_rect(fill = "gray98"),
-          legend.position = c(0.65,0.85), legend.title = element_blank(),
-          legend.text = element_text(size = 9),
-          legend.key.size = unit(0.3, 'cm'))+
-
-
 #Sierra vs Central America
 res.4 = results(da, contrast =
               c("State_Region", "Sierra Nevada", "Central America"), alpha = 0.01)
@@ -407,22 +360,8 @@ res.4_sig = res.4[(res.4$padj < 0.01), ]
 res.4_sig = cbind(as(res.4_sig, "data.frame"),
                 as(tax_table(amphib.obj)[rownames(res.4_sig), ], "matrix"))
 
-#Plot 4
-ggplot(res.1_sig, aes(x = Order, y = log2FoldChange))+
-        geom_col(aes(fill = Phylum), width = 1)+
-        scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
-                                 "#78B7C5", "#CC99CC", "#00A08A","#FFC307",
-                                 "#D69C4E", "#FDD262", "#EE6A50", "#D3DDDC",
-                                 "#97D992"))+
-        guides(fill=guide_legend(nrow=6))+
-        theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-          axis.title.x = element_blank(), axis.title.y = element_blank(),
-          panel.background = element_rect(fill = "gray98"),
-          legend.position = c(0.65,0.85), legend.title = element_blank(),
-          legend.text = element_text(size = 9),
-          legend.key.size = unit(0.3, 'cm'))+
-
+otu_res <- Reduce(function(x,y) merge(x,y, all = TRUE), list(res.1_sig, res.2_sig,
+                                                             res.3_sig, res.4_sig))
 
 
 #For Loop for Plots
