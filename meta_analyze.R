@@ -340,9 +340,8 @@ for (i in c(1,2,4,5)){
   }
 }
 
-
 #Plot OTU Abundances
-ggplot(otu_res, aes(x = Order, y = log2FoldChange))+
+otup <- ggplot(otu_res, aes(x = Order, y = log2FoldChange))+
     geom_col(aes(fill = Phylum), width = 1)+
     scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FFC307",
                                  "#78B7C5", "#CC99CC", "#00A08A", "#FDDDA0",
@@ -361,18 +360,18 @@ theme(plot.title = element_text(family = "Georgia"),
       legend.key.size = unit(0.3, 'cm'))+
 guides(fill=guide_legend(nrow=6))
 
-
 #Arrange Plot Titles by Region Color
-g <- ggplot_gtable(ggplot_build(abs))
-stripr <- which(grepl('strip-t', g$layout$name))
-flls <- c("#F8AFA8", "#EE6A50", "#9A8822", "#899DA4", "#FDDDA0")
+h <- ggplot_gtable(ggplot_build(otup))
+stripr <- which(grepl('strip-t', h$layout$name))
+flls <- c("#9A8822", "#F8AFA8",  "#899DA4", "#FDDDA0")
 k <- 1
-for(i in c(32,34,35,36,37)) {
-    j <- which(grepl('rect', g$grobs[[i]]$grobs[[1]]$childrenOrder))
-    g$grobs[[i]]$grobs[[1]]$children[[j]]$gp$fill <- flls[k]
+for(i in stripr){
+    j <- which(grepl('rect', h$grobs[[i]]$grobs[[1]]$childrenOrder))
+    h$grobs[[i]]$grobs[[1]]$children[[j]]$gp$fill <- flls[k]
     k <- k+1
 }
-grid.draw(g)
+
+grid.draw(h)
 
 #show's the orders of significant bacteria
 #axis.text.x = element_text(angle = -90, hjust = 0, vjust = 0.5, size = 8)
