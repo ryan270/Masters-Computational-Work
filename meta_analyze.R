@@ -344,9 +344,9 @@ for (i in c(1,2,4,5)){
 #Plot OTU Abundances
 ggplot(otu_res, aes(x = Order, y = log2FoldChange))+
     geom_col(aes(fill = Phylum), width = 1)+
-    scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
-                                 "#78B7C5", "#CC99CC", "#00A08A","#FFC307",
-                                 "#D69C4E", "#FDD262", "#EE6A50", "#D3DDDC",
+    scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FFC307",
+                                 "#78B7C5", "#CC99CC", "#00A08A", "#FDDDA0",
+                                 "#D69C4E", "#FDD262", "#D3DDDC", "#EE6A50",
                                  "#97D992"))+
 facet_wrap(~Comparison)+
 theme(plot.title = element_text(family = "Georgia"),
