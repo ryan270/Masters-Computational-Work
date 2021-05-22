@@ -321,45 +321,7 @@ geoMeans = apply(counts(da), 1, gm_mean)
 da <- estimateSizeFactors(da, geoMeans = geoMeans)
 da <- DESeq(da, fitType="local")
 
-#For loop that Compares the significant OTU abundance of each Region
-#with Sierra Nevada
-# Need to break down for loop to individual comparisons
-
-
-#Sierra vs Northern California
-res.1 = results(da, contrast =
-              c("State_Region", "Sierra Nevada", "Northern California"), alpha = 0.01)
-res.1 = res.1[order(res.1$padj, na.last=NA), ]
-res.1_sig = res.1[(res.1$padj < 0.01), ]
-res.1_sig = cbind(as(res.1_sig, "data.frame"),
-                as(tax_table(amphib.obj)[rownames(res.1_sig), ], "matrix"))
-
-#Sierra vs Coastal California
-res.2 = results(da, contrast =
-              c("State_Region", "Sierra Nevada", "Coastal California"), alpha = 0.01)
-res.2 = res.2[order(res.2$padj, na.last=NA), ]
-res.2_sig = res.2[(res.2$padj < 0.01), ]
-res.2_sig = cbind(as(res.2_sig, "data.frame"),
-                as(tax_table(amphib.obj)[rownames(res.2_sig), ], "matrix"))
-
-
-#Sierra vs Southern California
-res.3 = results(da, contrast =
-              c("State_Region", "Sierra Nevada", "Southern California"), alpha = 0.01)
-res.3 = res.3[order(res.3$padj, na.last=NA), ]
-res.3_sig = res.3[(res.3$padj < 0.01), ]
-res.3_sig = cbind(as(res.3_sig, "data.frame"),
-                as(tax_table(amphib.obj)[rownames(res.3_sig), ], "matrix"))
-
-#Sierra vs Central America
-res.4 = results(da, contrast =
-              c("State_Region", "Sierra Nevada", "Central America"), alpha = 0.01)
-res.4 = res.4[order(res.4$padj, na.last=NA), ]
-res.4_sig = res.4[(res.4$padj < 0.01), ]
-res.4_sig = cbind(as(res.4_sig, "data.frame"),
-                as(tax_table(amphib.obj)[rownames(res.4_sig), ], "matrix"))
-
-#Modified For Loop
+#For Loop that Compares the Abundances of OTU's Between Regions
 for (i in c(1,2,4,5)){
   altrg = levels(sample_data(amphib.obj)$State_Region)[i]
   res = results(da, contrast =
@@ -379,32 +341,38 @@ for (i in c(1,2,4,5)){
 }
 
 
-#Plot Whole Dataset
-ggplot(res_sig, aes(x = Order, y = log2FoldChange))+
+#Plot OTU Abundances
+ggplot(otu_res, aes(x = Order, y = log2FoldChange))+
     geom_col(aes(fill = Phylum), width = 1)+
     scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
                                  "#78B7C5", "#CC99CC", "#00A08A","#FFC307",
                                  "#D69C4E", "#FDD262", "#EE6A50", "#D3DDDC",
                                  "#97D992"))+
-ggtitle(paste("Sierra Nevada vs ", altrg, sep = ""))+
+facet_wrap(~Comparison)+
 theme(plot.title = element_text(family = "Georgia"),
       axis.text.x = element_blank(),
       axis.ticks.x = element_blank(),
       axis.title.x = element_blank(), axis.title.y = element_blank(),
+      strip.text = element_text(size = 14, family = "Georgia",
+                                face = "bold"),
       panel.background = element_rect(fill = "gray98"),
-      legend.position = c(0.65,0.85), legend.title = element_blank(),
+      legend.position = c(0.82,0.35), legend.title = element_blank(),
       legend.text = element_text(size = 9),
       legend.key.size = unit(0.3, 'cm'))+
 guides(fill=guide_legend(nrow=6))
 
-#Plot the OTU abundances
-grid.arrange(grobs = list(otu.list[[1]], otu.list[[2]], otu.list[[4]],
-                          otu.list[[5]]), ncol = 3,
-             bottom =textGrob("Order",
-                              gp=gpar(fontsize=22, fontfamily = "Georgia")),
-             left = textGrob("log2FoldChange", rot = 90,
-                             vjust = 1,
-                             gp=gpar(fontsize = 22, fontfamily = "Georgia")))
+
+#Arrange Plot Titles by Region Color
+g <- ggplot_gtable(ggplot_build(abs))
+stripr <- which(grepl('strip-t', g$layout$name))
+flls <- c("#F8AFA8", "#EE6A50", "#9A8822", "#899DA4", "#FDDDA0")
+k <- 1
+for(i in c(32,34,35,36,37)) {
+    j <- which(grepl('rect', g$grobs[[i]]$grobs[[1]]$childrenOrder))
+    g$grobs[[i]]$grobs[[1]]$children[[j]]$gp$fill <- flls[k]
+    k <- k+1
+}
+grid.draw(g)
 
 #show's the orders of significant bacteria
 #axis.text.x = element_text(angle = -90, hjust = 0, vjust = 0.5, size = 8)
