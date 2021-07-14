@@ -4,8 +4,7 @@
 
 ##LOAD LIBRARIES & DATA
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
-library(dplyr)
-library(plyr)
+library(tidyverse)
 library(maps)
 
 abmap <- read.table(file = 'AB_mapping_file.txt', sep = "\t", header = TRUE)
