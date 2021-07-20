@@ -13,25 +13,27 @@ ampm <- read.table(file = 'merged_metadata.txt', sep = "\t", header = TRUE)
 ##PREP DATA FOR EACH REGION
 # Create vectors for Sample sizes & Species
 # SE Dataset
-se <- unique(ampm$Dataset)[1]
-se_spp <- 'Rana_sierrae'
-se_reg <- unique(ampm$State_Region)[1]
-se_sam <- length(which(ampm$Dataset == se))
+se_d <- data.frame(Paper = 'Ellison et al., 2018',
+                   Species = 'Rana Sierrae',
+                   Region = 'Sierra Nevada',
+                   N = 130)
 
 # MG Dataset
-mg <- unique(ampm$Dataset)[2]
-mg_spp <- unique(ampm$Species[which(ampm$Dataset == mg)])
-mg_reg <- unique(ampm$State_Region)[2]
+mg_spp <- unique(ampm$Species[which(ampm$Dataset == 'Ellison et al., 2017')])
 mg_sam <- NULL
 for(i in mg_spp){
     ph <- length(which(ampm$Species == i))
     mg_sam <- c(mg_sam, ph)
 }
 
+mg_d <- data.frame(Paper = 'Ellison et al., 2017',
+                   Species = mg_spp,
+                   Region = 'Central America',
+                   N = mg_sam)
+
 # SPI Dataset
-spi <- unique(ampm$Dataset)[4]
-spi_spp <- unique(ampm$Species[which(ampm$Dataset == spi)])
-spi_reg <- unique(ampm$State_Region[which(ampm$Dataset == spi)])
+spi_reg <- unique(ampm$State_Region[which(ampm$Dataset ==
+                                          'Prado-Irwin et al., 2017')])
 
 # Get samples sizes of ab dataset for each region
 spi_sam <- numeric()
@@ -41,9 +43,15 @@ for(i in 1:4){
     spi_sam <- c(spi_sam, ph)
 }
 
+spi_d <- data.frame(Paper = 'Prado-Irwin et al., 2017',
+                    Species = 'Ensatina eschscholtzii',
+                    Region = spi_reg,
+                    N = spi_sam)
+
+
 # AB Dataset
-ab <- unique(ampm$Dataset)[3]
-ab_spp <- unique(ampm$Species[which(ampm$Dataset == ab)])
+ab_spp <- unique(ampm$Species[which(ampm$Dataset ==
+                                    'Bird et al., 2018')])
 ab_reg <- unique(ampm$State_Region[which(ampm$Dataset == ab)])
 
 # Get samples sizes of ab dataset for each region
@@ -51,28 +59,20 @@ ab_reg <- unique(ampm$State_Region[which(ampm$Dataset == ab)])
 length(which(ampm$Species == ab_spp[4] & ampm$State_Region == ab_reg[4]))
 
 # Write to dataframe
-ab_sam <-data.frame(Species = c(ab_spp[1], ab_spp[1], ab_spp[2], ab_spp[3],
+ab_d <-data.frame(Species = c(ab_spp[1], ab_spp[1], ab_spp[2], ab_spp[3],
                                 ab_spp[4], ab_spp[4], ab_spp[4], ab_spp[4]),
                     Region = c(ab_reg[1], ab_reg[2], ab_reg[3], ab_reg[1],
                                ab_reg[1], ab_reg[2], ab_reg[3], ab_reg[4]),
                     N = c(5, 15, 4, 8, 42, 61, 13, 51),
-                    Paper = ab)
+                    Paper = 'Bird et al., 2018')
 
+# Remove Unnecessary Variables
+rm(ab_spp, ab_reg, spi_sam, spi_reg,mg_sam, mg_spp, ph, se_reg, spi_sam)
 
 #-------------------------------------#
-## WRITE & FORMAT TABLE
-# Create Table SE & MG Table
-Info_Table <- data.frame(Species = c(se_spp, mg_spp, rep(spi_spp, 4)),
-                         Paper = c(se, rep(mg, 15), rep(spi, 4)),
-                         Region = c(se_reg, rep(mg_reg, 15), spi_reg),
-                         N = c(se_sam, mg_sam, spi_sam))
-
+## MERGE & FORMAT TABLE
 # Bind other Dataframes
-Info_Table <- rbind(Info_Table, ab_sam)
-
-# Remove Extra Variables
-rm(ab, ab_reg, ab_sam, ab_spp, mg, mg_reg, mg_sam, mg_spp, ph, se, se_reg,
-   se_sam, se_spp, spi, spi_reg, spi_sam, spi_spp)
+Info_Table <- rbind(ab_d, mg_d, se_d, spi_d)
 
 # Remove Underscore from species
 for(i in 1:nrow(Info_Table)){
@@ -96,7 +96,7 @@ common_names <- c('California Slender Salamander',
                   'Climbing Salamander Hybrid', 'Volcan Tacana Toad',
                   'Sierra Nevada Yellow-Legged Frog',
                   'Tropical Lungless Salamanders',
-                  "Franklin's Climbin Salamander", 'Spikethumb Frogs',
+                  "Franklin's Climbing Salamander", 'Spikethumb Frogs',
                   'Brittle-belly Frogs',  'Spikethumb Frogs',
                   'Neotropical Salamander', 'Brittle-belly Frogs',
                   'Ensatina Salamanders', 'Ensatina Salamanders',
