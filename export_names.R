@@ -25,7 +25,6 @@ for(i in mg_spp){
     ph <- length(which(ampm$Species == i))
     mg_sam <- c(mg_sam, ph)
 }
-
 mg_d <- data.frame(Paper = 'Ellison et al., 2017',
                    Species = mg_spp,
                    Region = 'Central America',
@@ -38,8 +37,9 @@ spi_reg <- unique(ampm$State_Region[which(ampm$Dataset ==
 # Get samples sizes of ab dataset for each region
 spi_sam <- numeric()
 for(i in 1:4){
-    ph <- length(which(ampm$Species == spi_spp &
-                       ampm$State_Region == spi_reg[i]))
+    ph <- length(which(ampm$Species == 'Ensatina_eschscholtzii' &
+                       ampm$State_Region == spi_reg[i] &
+                       ampm$Dataset == 'Prado-Irwin et al., 2017'))
     spi_sam <- c(spi_sam, ph)
 }
 
@@ -52,22 +52,23 @@ spi_d <- data.frame(Paper = 'Prado-Irwin et al., 2017',
 # AB Dataset
 ab_spp <- unique(ampm$Species[which(ampm$Dataset ==
                                     'Bird et al., 2018')])
-ab_reg <- unique(ampm$State_Region[which(ampm$Dataset == ab)])
+ab_reg <- unique(ampm$State_Region[which(ampm$Dataset == 'Bird et al., 2018')])
 
 # Get samples sizes of ab dataset for each region
 # Change this line to get samples per region for dataset
-length(which(ampm$Species == ab_spp[4] & ampm$State_Region == ab_reg[4]))
+length(which(ampm$Species == ab_spp[4] & ampm$State_Region == ab_reg[2] &
+             ampm$Dataset == 'Bird et al., 2018'))
 
 # Write to dataframe
 ab_d <-data.frame(Species = c(ab_spp[1], ab_spp[1], ab_spp[2], ab_spp[3],
                                 ab_spp[4], ab_spp[4], ab_spp[4], ab_spp[4]),
                     Region = c(ab_reg[1], ab_reg[2], ab_reg[3], ab_reg[1],
                                ab_reg[1], ab_reg[2], ab_reg[3], ab_reg[4]),
-                    N = c(5, 15, 4, 8, 42, 61, 13, 51),
+                    N = c(5, 15, 4, 8, 10, 39, 2, 13),
                     Paper = 'Bird et al., 2018')
 
 # Remove Unnecessary Variables
-rm(ab_spp, ab_reg, spi_sam, spi_reg,mg_sam, mg_spp, ph, se_reg, spi_sam)
+rm(ab_spp, ab_reg, spi_sam, spi_reg,mg_sam, mg_spp, ph, se_reg)
 
 #-------------------------------------#
 ## MERGE & FORMAT TABLE
