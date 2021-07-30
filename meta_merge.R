@@ -2,6 +2,8 @@
 #This script will merge the mapping files from different datasets and write the
 #...output to working directory
 
+
+#-------------------------#
 ##LOAD LIBRARIES & DATA
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
 library(tidyverse)
@@ -14,6 +16,7 @@ spimap <- read.table(file = 'SPI_mapping_file.txt', sep = "\t", header = TRUE)
 semap <- read.table(file = 'SE_mapping_file.txt', sep = "\t", header = TRUE)
 
 
+#-------------------------#
 ##FORMATTING
 #Remove all columns unique to one dataset
 names(abmap)[names(abmap) == "Habitat_Type"] <- "Habitat"
@@ -49,6 +52,8 @@ mgmap$Latitude <- as.numeric(mgmap$Latitude)
 mgmap$Longitude <- as.numeric(mgmap$Longitude)
 
 
+
+#-------------------------#
 ##ORGANIZE TAXONOMY
 #create new columns with Taxonomic Rank
 abmap$Family = "Plethodontidae"
@@ -72,6 +77,7 @@ for (i in 1:nrow(mgmap)) {
 }
 
 
+#-------------------------#
 ##DIVIDE CALIFORNIA INTO FOUR REGIONS
 #For Loops x Dataset
 abmap$State_Region <- 0
@@ -108,6 +114,7 @@ spimap <- select(spimap, -c(pop))
 semap$State_Region = 'Sierra Nevada'
 
 
+#-------------------------#
 ##ADD GPS
 #For Loop that adds randomized lat/long
 for(i in 1:nrow(semap)){
@@ -127,6 +134,7 @@ for(i in 1:nrow(semap)){
 }
 
 
+#-------------------------#
 ##ADD COUNTY DATA
 #Lookup County
 semap$Site <- map.where(database = "county",
@@ -140,14 +148,16 @@ abmap$Site <- map.where(database = "county",
 semap$Site <- sub('...........', '', semap$Site)
 abmap$Site <- sub('...........', '', abmap$Site)
 
+#-------------------------#
 ##ADD DATASET COLUMN
 #Add a column indicating what the dataset is
 abmap$Dataset <- as.character("Bird et al., 2018", quote = FALSE)
-mgmap$Dataset <- as.character("Ellison et al., 2017", quote = FALSE)
-semap$Dataset <- as.character("Ellison et al., 2018", quote = FALSE)
+mgmap$Dataset <- as.character("Ellison et al., 2018", quote = FALSE)
+semap$Dataset <- as.character("Ellison et al., 2019", quote = FALSE)
 spimap$Dataset <- as.character("Prado-Irwin et al., 2017", quote = FALSE)
 
 
+#-------------------------#
 ##JOIN TABLES
 meta_1 <- full_join(semap, mgmap, by = c('SampleID', 'Bd_status', 'Species',
                                          'Genus', 'Family', 'Site', 'Order',
