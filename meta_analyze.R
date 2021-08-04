@@ -9,7 +9,7 @@
 # Set Directory and Load required Packages
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
 project_packages <- c('phyloseq', 'qiime2R','grid','gridExtra', 'vegan',
-                      'ggmap','ggpubr', 'tidyverse')
+                      'ggmap','tidyverse')
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
@@ -256,7 +256,7 @@ cali <- subset(map_data("state"), region == "california")
 cac <- subset(map_data("county"), region == "california")
 
 #For Loop that Divides California Counties into Regions
-cac$zone <- as.character(0, quote = FALSE)
+cac$zone <- as.character(NA)
 
 for(i in 1:nrow(cac)){
         srrs <- c("placer", "el dorado", "madera")
@@ -279,10 +279,9 @@ for(i in 1:nrow(cac)){
 #Plot Map of California
 ggplot(data = cali, mapping = aes(x = long, y = lat, group = group)) +
     coord_fixed(1.3) +
-    geom_polygon(color = "black", fill = "gray90") +
-    geom_polygon(data = cac, aes(fill = zone), color = "gray90") +
-    scale_fill_manual(values = c("gray85", "#9A8822", "#EE6A50", "#FDDDA0",
-                                 "#899DA4"),
+    geom_polygon(color = "black", fill = 'gray95') +
+    geom_polygon(data = cac, aes(fill = zone), color = "white", size = 0.1) +
+    scale_fill_manual(values = c("#FDDDA0", "#899DA4", "#EE6A50", "#9A8822"),
                       name = "State Regions",
                       breaks = c("Coastal California",
                                  "Northern California",
@@ -293,12 +292,6 @@ ggplot(data = cali, mapping = aes(x = long, y = lat, group = group)) +
           legend.text = element_text(size = 12, family = "Georgia"),
           legend.title = element_text(size = 18, family = "Georgia",
                                       face = "bold"))
-
-
-#Load Mexico/Guatemala Map Data
-library(maps)
-
-mgm <- subset(map_data("state"), region == "chiapas")
 
 #----------------------------------------------------------------#
 ##CLUSTER ANALYSIS
