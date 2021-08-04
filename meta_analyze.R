@@ -256,7 +256,7 @@ cali <- subset(map_data("state"), region == "california")
 cac <- subset(map_data("county"), region == "california")
 
 #For Loop that Divides California Counties into Regions
-cac$zone <- as.character(NA)
+cac['zone'] <- NA
 
 for(i in 1:nrow(cac)){
         srrs <- c("placer", "el dorado", "madera")
@@ -277,17 +277,18 @@ for(i in 1:nrow(cac)){
 }
 
 #Plot Map of California
-ggplot(data = cali, mapping = aes(x = long, y = lat, group = group)) +
+ggplot(data = cali, mapping = aes(x = long, y = lat, group = group,
+                                  fill = 'lightgray')) +
     coord_fixed(1.3) +
-    geom_polygon(color = "black", fill = 'gray95') +
-    geom_polygon(data = cac, aes(fill = zone), color = "white", size = 0.1) +
-    scale_fill_manual(values = c("#FDDDA0", "#899DA4", "#EE6A50", "#9A8822"),
+    geom_polygon(fill = 'lightgray')+
+    geom_polygon(data = cac,  aes(fill = zone),  color = "white", size = 0.1)+
+    scale_fill_manual(values = c("#FDDDA0", "#899DA4", "#EE6A50", "#9A8822",
+                                 'lightgray'),
                       name = "State Regions",
                       breaks = c("Coastal California",
                                  "Northern California",
-                                 "Sierras",
-                                 "Southern California")) +
-    theme_void() +
+                                 "Sierras", "Southern California")) +
+    theme_void()+
     theme(legend.position = c(0.8,0.85),
           legend.text = element_text(size = 12, family = "Georgia"),
           legend.title = element_text(size = 18, family = "Georgia",
