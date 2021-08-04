@@ -1,15 +1,15 @@
-###META ANALYSIS SCRIPT
+### META ANALYSIS SCRIPT
 
-#This script will provide an in depth analysis of microbial data previously
+# This script will provide an in depth analysis of microbial data previously
 #...analyzed in QIIME2. This script will render multiple plots that will
 #...elucidate the change in diversity on amphibians between regions along the
 #...Pacific Coast.
 
-##LOAD PACKAGES, DATA, AND DIRECTORY
-#Set Directory and Load required Packages
+## LOAD PACKAGES, DATA, AND DIRECTORY
+# Set Directory and Load required Packages
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
-project_packages <- c('phyloseq', 'qiime2R','DESeq2', 'grid',
-                      'gridExtra', 'vegan', 'ggmap', 'tidyverse')
+project_packages <- c('phyloseq', 'qiime2R','grid','gridExtra', 'vegan',
+                      'ggmap', 'tidyverse')
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
@@ -19,11 +19,11 @@ amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza",
                                           metadata="merged_metadata.txt"),
                           !is.na(Order) & !Order %in% c("", "uncharacterized"))
 
-#Very Important
+# Very Important
 the.royal <- c("#899DA4", "#9A8822", "#F5CDB4",
                "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
 
-#Order Region Levels
+# Order Region Levels
 sample_data(amphib.obj)$State_Region <-
     factor(sample_data(amphib.obj)$State_Region,
               levels = c("Northern California", "Coastal California",
@@ -33,7 +33,8 @@ sample_data(amphib.obj)$State_Region <-
 #----------------------------------------------------------------#
 #----------------------------------------------------------------#
 
-##REMOVE OUTLIERS: Remove Frogs with very high levels of Proteobacteria
+## REMOVE OUTLIERS (Optional): Remove Frogs with very high levels of
+# Proteobacteria
 acts <- transform_sample_counts(amphib.obj, function(x) x/ sum(x)) %>%
     psmelt()
 
@@ -44,17 +45,32 @@ nsmps <- setdiff(sample_names(amphib.obj), outs)
 amphib.obj <- prune_samples(nsmps, amphib.obj)
 
 #----------------------------------------------------------------#
-##TAXA BARPLOT: Displays only the top OTUS for Each Region
-#Create Database of OTU's w/ 1% Category
+
+## TAXA BARPLOT: Displays only the top OTUS for Each Region
+# Create Database of OTU's w/ 1% Category
 txs <- amphib.obj %>%
     transform_sample_counts(function(x) x / sum(x)) %>%
     tax_glom(taxrank = 'Phylum') %>%
-    psmelt()
+    psmelt() %>%
+    mutate(Prbd = as.numeric(0))
 
-txs$Phylum <- as.character(txs$Phylum)
+# Make a 1% category of Proteobacterial Abundance
 txs$Phylum[txs$Abundance < 0.01] <- "<1% Abundance"
+txs$Prbd[txs$Phylum == 'Protreobacteria'] <-
+    txs$Abundance[txs$Phylum == 'Proteobacteria']
 
-#Re-Order Levels
+# Return the avg Proteo Abundance by Sample
+mns <- aggregate(x = txs$Prbd, by = list(txs$Sample), FUN = mean) %>%
+    rename(Sample = Group.1)
+# Arrange txs
+txs <- txs %>%
+    full_join(mns, by = 'Sample') %>%
+    rename(Avgs = x) %>%
+    arrange(Avgs)
+
+
+# Re-Order Levels
+txs$Sample <- factor(txs$Sample, levels = unique(txs$Sample))
 txs$Phylum <- factor(txs$Phylum,
                           levels = c("Acidobacteria", "Actinobacteria",
                                      "Armatimonadetes", "Bacteroidetes",
@@ -68,10 +84,16 @@ txs$Phylum <- factor(txs$Phylum,
                                      "WS3", "[Thermi]",
                                      "<1% Abundance"))
 
+# Create Points for Frogs
+txs$Ord <- ""
+txs$Ord[txs$sample_Order == 'Frog'] <- '.'
+
 #Plot Relative Abundances
 abs <- ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
-    facet_wrap(~State_Region, scales = "free_x", nrow = 3)+
-    geom_bar(aes(), stat="identity", position="stack") +
+    facet_wrap(~State_Region, scales = "free_x", nrow = 5)+
+    geom_bar(aes(), stat="identity", position="stack")+
+    geom_text(aes(x = Sample, y = 1.15, label = (Ord)),
+              colour = 'black', size = 4)+
     scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
                                  "#78B7C5", "#FF0000", "#00A08A", "#F2AD00",
                                  "#F98400", "#46ACC8", "#ECCBAE", "#F5CDB4",
@@ -79,9 +101,8 @@ abs <- ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
                                  "#EE6A50", "#899DA4","#D3DDDC", "#9A8822",
                                  "#046C9A", "#000000"))+
     ylab('Relative Abunance')+
-    theme(legend.justification = c(1,0), legend.position = c(1,0),
-          legend.key.height = unit(0.75, 'cm'),
-          legend.key.width = unit(1.3, 'cm'),
+    theme(legend.justification = 'left', legend.position = 'bottom',
+          legend.key.height = unit(0.5, 'cm'),
           axis.title = element_text(size = 16, family = "Georgia"),
           axis.text.x = element_blank(),
           axis.ticks.x = element_blank(), axis.title.x = element_blank(),
@@ -102,7 +123,7 @@ g <- ggplot_gtable(ggplot_build(abs))
 stripr <- which(grepl('strip-t', g$layout$name))
 flls <- c("#F8AFA8", "#EE6A50", "#9A8822", "#899DA4", "#FDDDA0")
 k <- 1
-for(i in c(32,34,35,36,37)) {
+for(i in c(stripr)) {
     j <- which(grepl('rect', g$grobs[[i]]$grobs[[1]]$childrenOrder))
     g$grobs[[i]]$grobs[[1]]$children[[j]]$gp$fill <- flls[k]
     k <- k+1
