@@ -266,30 +266,35 @@ ggmap(mgm)+
     geom_text(label = "Guatemala", nudge_x = 1.55, nudge_y = 1.4, size = 12,
               family = "Georgia")
 
+
 #Map California Regions
+# Need to Transform this map plot so that multiple authors are labled above the
+    # appropriate counties.
 #Load California Map Data
 cali <- subset(map_data("state"), region == "california")
 cac <- subset(map_data("county"), region == "california")
 
 #For Loop that Divides California Counties into Regions
 cac$zone <- as.character(0, quote = FALSE)
+srrs <- c("placer", "el dorado", "madera")
+ccm <- c("san francisco", "alameda", "santa cruz",
+         "monterey", "contra costa")
+scal <- c("san diego")
+ncal <- c("mendocino", "humboldt", "siskiyou", "shasta", "trinity",
+          "del norte", "sonoma", "trinity")
 
 for(i in 1:nrow(cac)){
-        srrs <- c("placer", "el dorado", "madera")
-        ccm <- c("san francisco", "alameda", "santa cruz",
-                 "monterey", "contra costa")
-        scal <- c("san diego")
-        ncal <- c("mendocino", "humboldt", "siskiyou", "shasta", "trinity",
-                  "del norte", "sonoma", "trinity")
-        if (is.element(cac$subregion[i], srrs)){
-            cac$zone[i] <- "Sierras - Ellison et al., 2017"
-        }else if (is.element(cac$subregion[i], ccm)){
-            cac$zone[i] <- "Coastal California - Prado-Irwin et al. 2017"
-        }else if (is.element(cac$subregion[i], scal)){
-            cac$zone[i] <- "Southern California - Bird et al., 2018"
-        }else if (is.element(cac$subregion[i], ncal)){
-            cac$zone[i] <- "Northern California - Bird et a., 2018"
-        }
+    if (is.element(cac$subregion[i], srrs)){
+        cac$zone[i] <- "Sierras"
+    }else if (is.element(cac$subregion[i], ccm)){
+        cac$zone[i] <- "Coastal California"
+    }else if (is.element(cac$subregion[i], scal)){
+        cac$zone[i] <- "Southern California"
+    }else if (is.element(cac$subregion[i], ncal)){
+        cac$zone[i] <- "Northern California"
+    } while(i == nrow(cac)){
+        rm(srrs, ccm, scal, ncal)
+    }
 }
 
 #Plot Map of California
@@ -300,10 +305,8 @@ ggplot(data = cali, mapping = aes(x = long, y = lat, group = group)) +
     scale_fill_manual(values = c("gray85", "#FDDDA0", "#899DA4",
                                  "#EE6A50", "#9A8822"),
                       name = "State Regions",
-                      breaks = c("Coastal California - Prado-Irwin et al. 2017",
-                                 "Northern California - Bird et a., 2018",
-                                 "Sierras - Ellison et al., 2017",
-                                 "Southern California - Bird et al., 2018")) +
+                      breaks = c("Coastal California", "Northern California",
+                                 "Sierras", "Southern California")) +
     theme_void() +
     theme(legend.position = c(0.8,0.85),
           legend.text = element_text(size = 12, family = "Georgia"),
