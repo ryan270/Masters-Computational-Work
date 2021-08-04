@@ -9,7 +9,7 @@
 # Set Directory and Load required Packages
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
 project_packages <- c('phyloseq', 'qiime2R','grid','gridExtra', 'vegan',
-                      'ggmap', 'tidyverse')
+                      'ggmap', 'ggpubr' 'tidyverse')
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
@@ -302,6 +302,11 @@ ggplot(data = cali, mapping = aes(x = long, y = lat, group = group)) +
     coord_fixed(1.3) +
     geom_polygon(color = "black", fill = "gray85") +
     geom_polygon(data = cac, aes(fill = zone), color = "gray90") +
+    geom_bracket(
+    xmin = c("0.5", "1"), xmax = c("1", "2"),
+    y.position = c(30, 35), label = c("***", "**"),
+    tip.length = 0.01
+  )+
     scale_fill_manual(values = c("gray85", "#FDDDA0", "#899DA4",
                                  "#EE6A50", "#9A8822"),
                       name = "State Regions",
