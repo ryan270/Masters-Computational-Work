@@ -332,6 +332,7 @@ gskmn #shows that I have 6 clusters in dataset
 
 #----------------------------------------------------------------#
 ##OTU ANALYSIS: Calculate the Difference in OTU Abundance Between Regions
+# Need to reinstall DESeq
 #Convert physeq object to DESeq object
 da <- phyloseq_to_deseq2(amphib.obj, ~ State_Region)
 gm_mean = function(x, na.rm=TRUE){
