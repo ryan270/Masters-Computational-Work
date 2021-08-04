@@ -9,7 +9,7 @@
 # Set Directory and Load required Packages
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
 project_packages <- c('phyloseq', 'qiime2R','grid','gridExtra', 'vegan',
-                      'ggmap', 'ggpubr' 'tidyverse')
+                      'ggmap','ggpubr', 'tidyverse')
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
@@ -52,25 +52,12 @@ txs <- amphib.obj %>%
     transform_sample_counts(function(x) x / sum(x)) %>%
     tax_glom(taxrank = 'Phylum') %>%
     psmelt() %>%
-    mutate(Prbd = as.numeric(0))
+    mutate(Prbd = as.numemric(0))
 
 # Make a 1% category of Proteobacterial Abundance
-txs$Phylum[txs$Abundance < 0.01] <- "<1% Abundance"
-txs$Prbd[txs$Phylum == 'Protreobacteria'] <-
-    txs$Abundance[txs$Phylum == 'Proteobacteria']
-
-# Return the avg Proteo Abundance by Sample
-mns <- aggregate(x = txs$Prbd, by = list(txs$Sample), FUN = mean) %>%
-    rename(Sample = Group.1)
-# Arrange txs
-txs <- txs %>%
-    full_join(mns, by = 'Sample') %>%
-    rename(Avgs = x) %>%
-    arrange(Avgs)
-
+txs$Phylum <- as.character(txs$Phylum)
 
 # Re-Order Levels
-txs$Sample <- factor(txs$Sample, levels = unique(txs$Sample))
 txs$Phylum <- factor(txs$Phylum,
                           levels = c("Acidobacteria", "Actinobacteria",
                                      "Armatimonadetes", "Bacteroidetes",
@@ -84,16 +71,10 @@ txs$Phylum <- factor(txs$Phylum,
                                      "WS3", "[Thermi]",
                                      "<1% Abundance"))
 
-# Create Points for Frogs
-txs$Ord <- ""
-txs$Ord[txs$sample_Order == 'Frog'] <- '.'
-
 #Plot Relative Abundances
 abs <- ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
-    facet_wrap(~State_Region, scales = "free_x", nrow = 5)+
-    geom_bar(aes(), stat="identity", position="stack")+
-    geom_text(aes(x = Sample, y = 1.15, label = (Ord)),
-              colour = 'black', size = 4)+
+    facet_wrap(~State_Region, scales = "free_x", nrow = 3)+
+    geom_bar(aes(), stat="identity", position="stack") +
     scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
                                  "#78B7C5", "#FF0000", "#00A08A", "#F2AD00",
                                  "#F98400", "#46ACC8", "#ECCBAE", "#F5CDB4",
@@ -101,8 +82,9 @@ abs <- ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
                                  "#EE6A50", "#899DA4","#D3DDDC", "#9A8822",
                                  "#046C9A", "#000000"))+
     ylab('Relative Abunance')+
-    theme(legend.justification = 'left', legend.position = 'bottom',
-          legend.key.height = unit(0.5, 'cm'),
+    theme(legend.justification = c(1,0), legend.position = c(1,0),
+          legend.key.height = unit(0.75, 'cm'),
+          legend.key.width = unit(1.3, 'cm'),
           axis.title = element_text(size = 16, family = "Georgia"),
           axis.text.x = element_blank(),
           axis.ticks.x = element_blank(), axis.title.x = element_blank(),
@@ -123,7 +105,7 @@ g <- ggplot_gtable(ggplot_build(abs))
 stripr <- which(grepl('strip-t', g$layout$name))
 flls <- c("#F8AFA8", "#EE6A50", "#9A8822", "#899DA4", "#FDDDA0")
 k <- 1
-for(i in c(stripr)) {
+for(i in c(32,34,35,36,37)) {
     j <- which(grepl('rect', g$grobs[[i]]$grobs[[1]]$childrenOrder))
     g$grobs[[i]]$grobs[[1]]$children[[j]]$gp$fill <- flls[k]
     k <- k+1
@@ -247,6 +229,8 @@ plot_ordination(amphib.obj, ord, color = "State_Region", shape = "Order")+
 
 #----------------------------------------------------------------#
 ##MAP THE SAMPLES
+# Need to reorganize california map plot to reflect that multipe authors sampled
+  # a given region
 #Map Mex/Gua Samples
 mgm <- get_stamenmap(bbox = c(bottom = 14.418492, left = -92.8479,
                               top = 16.098598, right = -90.227808),
@@ -266,52 +250,44 @@ ggmap(mgm)+
     geom_text(label = "Guatemala", nudge_x = 1.55, nudge_y = 1.4, size = 12,
               family = "Georgia")
 
-
 #Map California Regions
-# Need to Transform this map plot so that multiple authors are labled above the
-    # appropriate counties.
 #Load California Map Data
 cali <- subset(map_data("state"), region == "california")
 cac <- subset(map_data("county"), region == "california")
 
 #For Loop that Divides California Counties into Regions
 cac$zone <- as.character(0, quote = FALSE)
-srrs <- c("placer", "el dorado", "madera")
-ccm <- c("san francisco", "alameda", "santa cruz",
-         "monterey", "contra costa")
-scal <- c("san diego")
-ncal <- c("mendocino", "humboldt", "siskiyou", "shasta", "trinity",
-          "del norte", "sonoma", "trinity")
 
 for(i in 1:nrow(cac)){
-    if (is.element(cac$subregion[i], srrs)){
-        cac$zone[i] <- "Sierras"
-    }else if (is.element(cac$subregion[i], ccm)){
-        cac$zone[i] <- "Coastal California"
-    }else if (is.element(cac$subregion[i], scal)){
-        cac$zone[i] <- "Southern California"
-    }else if (is.element(cac$subregion[i], ncal)){
-        cac$zone[i] <- "Northern California"
-    } while(i == nrow(cac)){
-        rm(srrs, ccm, scal, ncal)
-    }
+        srrs <- c("placer", "el dorado", "madera")
+        ccm <- c("san francisco", "alameda", "santa cruz",
+                 "monterey", "contra costa")
+        scal <- c("san diego")
+        ncal <- c("mendocino", "humboldt", "siskiyou", "shasta", "trinity",
+                  "del norte", "sonoma", "trinity")
+        if (is.element(cac$subregion[i], srrs)){
+            cac$zone[i] <- "Sierras"
+        }else if (is.element(cac$subregion[i], ccm)){
+            cac$zone[i] <- "Coastal California"
+        }else if (is.element(cac$subregion[i], scal)){
+            cac$zone[i] <- "Southern California"
+        }else if (is.element(cac$subregion[i], ncal)){
+            cac$zone[i] <- "Northern California"
+        }
 }
 
 #Plot Map of California
 ggplot(data = cali, mapping = aes(x = long, y = lat, group = group)) +
     coord_fixed(1.3) +
-    geom_polygon(color = "black", fill = "gray85") +
+    geom_polygon(color = "black", fill = "gray90") +
     geom_polygon(data = cac, aes(fill = zone), color = "gray90") +
-    geom_bracket(
-    xmin = c("0.5", "1"), xmax = c("1", "2"),
-    y.position = c(30, 35), label = c("***", "**"),
-    tip.length = 0.01
-  )+
-    scale_fill_manual(values = c("gray85", "#FDDDA0", "#899DA4",
-                                 "#EE6A50", "#9A8822"),
+    scale_fill_manual(values = c("gray85", "#9A8822", "#EE6A50", "#FDDDA0",
+                                 "#899DA4"),
                       name = "State Regions",
-                      breaks = c("Coastal California", "Northern California",
-                                 "Sierras", "Southern California")) +
+                      breaks = c("Coastal California",
+                                 "Northern California",
+                                 "Sierras",
+                                 "Southern California")) +
     theme_void() +
     theme(legend.position = c(0.8,0.85),
           legend.text = element_text(size = 12, family = "Georgia"),
@@ -340,7 +316,6 @@ gskmn #shows that I have 6 clusters in dataset
 
 #----------------------------------------------------------------#
 ##OTU ANALYSIS: Calculate the Difference in OTU Abundance Between Regions
-# Need to reinstall DESeq
 #Convert physeq object to DESeq object
 da <- phyloseq_to_deseq2(amphib.obj, ~ State_Region)
 gm_mean = function(x, na.rm=TRUE){
