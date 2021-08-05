@@ -294,6 +294,12 @@ ggplot(data = cali, mapping = aes(x = long, y = lat, group = group,
                    Bird et al.'),
                    rotate = 270, labelsize = 4, color = '#9a8822',
                inherit.data = F)+
+    geom_brace(aes(c(-118, -117.6), c(39.6, 37.2),
+                   label = 'Prado-Irwin et al.
+Bird et al.
+Ellison et al., 2018'),
+                   rotate = 90, labelsize = 4, color = "#EE6A50",
+               inherit.data = F)+
     xlim(-127, -113.75)+
     scale_fill_manual(values = c("#FDDDA0", "#899DA4", "#EE6A50", "#9A8822",
                                  'lightgray'),
