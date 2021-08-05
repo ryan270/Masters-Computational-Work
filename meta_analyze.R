@@ -9,7 +9,7 @@
 # Set Directory and Load required Packages
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
 project_packages <- c('phyloseq', 'qiime2R','grid','gridExtra', 'vegan',
-                      'ggmap','tidyverse')
+                      'ggmap', 'maps' 'tidyverse')
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
@@ -282,13 +282,25 @@ ggplot(data = cali, mapping = aes(x = long, y = lat, group = group,
     coord_fixed(1.3) +
     geom_polygon(fill = 'lightgray')+
     geom_polygon(data = cac,  aes(fill = zone),  color = "white", size = 0.1)+
+    geom_brace(aes(c(-125, -124.6), c(38, 42.2), label = 'Bird et al'),
+               color = '#899DA4', labelsize = 4, rotate = 270,
+               inherit.data = F)+
+    geom_brace(aes(c(-123, -122.6), c(38, 35.7),
+                   label = 'Prado-Irwin et al.
+                   Bird et al.'),
+               rotate = 270, labelsize = 4, color = 'goldenrod1',
+               inherit.data = F)+
+    geom_brace(aes(c(-118,-117.6), c(33.5, 32.5), label = 'Prado-Irwin et al.
+                   Bird et al.'),
+                   rotate = 270, labelsize = 4, color = '#9a8822',
+               inherit.data = F)+
+    xlim(-127, -113.75)+
     scale_fill_manual(values = c("#FDDDA0", "#899DA4", "#EE6A50", "#9A8822",
                                  'lightgray'),
                       name = "State Regions",
                       breaks = c("Coastal California",
                                  "Northern California",
                                  "Sierras", "Southern California")) +
-    theme_void()+
     theme(legend.position = c(0.8,0.85),
           legend.text = element_text(size = 12, family = "Georgia"),
           legend.title = element_text(size = 18, family = "Georgia",
