@@ -277,24 +277,26 @@ ggplot(data = cali, mapping = aes(x = long, y = lat, group = group,
                                   fill = 'white'))+
     coord_fixed(1.3)+
     geom_polygon(data = cac,  aes(fill = zone),  colour = "white", size = 0.1)+
-    geom_polygon(fill = 'lightgray')+
-    scale_fill_manual(values = c('#fddda0', '#899da4', '#ee6a50', '#9a8822'),
-                      na.value = 'lightgray')
-
-
-    geom_brace(aes(c(-125, -124.6), c(38, 42.2), label = 'Bird et al'),
+    scale_fill_manual(values = c('#FDDDA0', '#899DA4', '#EE6A50', '#9A8822'),
+                      name = "State Regions",
+                      breaks = c("Coastal California",
+                                 "Northern California",
+                                 "Sierras",
+                                 "Southern California"),
+                      na.value = 'lightgray')+
+    geom_brace(aes(c(-125, -124.6), c(38.1, 42), label = 'Bird et al'),
                color = '#899DA4', labelsize = 4, rotate = 270,
                inherit.data = F)+
-    geom_brace(aes(c(-123, -122.6), c(38, 35.7),
+    geom_brace(aes(c(-123, -122.7), c(38.1, 35.7),
                    label = 'Prado-Irwin et al.
                    Bird et al.'),
                rotate = 270, labelsize = 4, color = 'goldenrod1',
                inherit.data = F)+
-    geom_brace(aes(c(-118,-117.6), c(33.5, 32.5), label = 'Prado-Irwin et al.
+    geom_brace(aes(c(-118.2,-117.8), c(33.5, 32.5), label = 'Prado-Irwin et al.
                    Bird et al.'),
                    rotate = 270, labelsize = 4, color = '#9a8822',
                inherit.data = F)+
-    geom_brace(aes(c(-118, -117.6), c(39.6, 37.2),
+    geom_brace(aes(c(-118.9, -118.4), c(39.4, 36.8),
                    label = 'Prado-Irwin et al.
 Bird et al.
 Ellison et al., 2018'),
@@ -302,12 +304,6 @@ Ellison et al., 2018'),
                inherit.data = F)+
     xlim(-126.1, -113.75)+
     theme_void()+
-    scale_fill_manual(values = c("#FDDDA0", "#899DA4", "#EE6A50", "#9A8822",
-                                 'lightgray'),
-                      name = "State Regions",
-                      breaks = c("Coastal California",
-                                 "Northern California",
-                                 "Sierras", "Southern California")) +
     theme(legend.position = c(0.8,0.85),
           legend.text = element_text(size = 12, family = "Georgia"),
           legend.title = element_text(size = 18, family = "Georgia",
