@@ -274,11 +274,12 @@ for(i in 1:nrow(cac)){
 #Plot Map of California
 #Test to change the colors
 ggplot(data = cali, mapping = aes(x = long, y = lat, group = group,
-                                  fill = 'lightgray')) +
-    coord_fixed(1.3) +
+                                  fill = 'white'))+
+    coord_fixed(1.3)+
+    geom_polygon(data = cac,  aes(fill = zone),  colour = "white", size = 0.1)+
     geom_polygon(fill = 'lightgray')+
-    geom_polygon(data = cac,  aes(fill = zone),  color = "white", size = 0.1)+
-    scale_fill_manual(values = c('#fddda0', '#899da4', '#ee6a50', '#9a8822'))
+    scale_fill_manual(values = c('#fddda0', '#899da4', '#ee6a50', '#9a8822'),
+                      na.value = 'lightgray')
 
 
     geom_brace(aes(c(-125, -124.6), c(38, 42.2), label = 'Bird et al'),
