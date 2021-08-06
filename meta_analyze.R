@@ -24,7 +24,7 @@ the.royal <- c("#899DA4", "#9A8822", "#F5CDB4",
                "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
 
 # Subset Samples Based on Paper
-spi.obj <- subset_samples(amphib.obj, Dataset == 'Bird et al., 2018')
+spi.obj <- subset_samples(amphib.obj, Dataset == 'Prado-Irwin et al., 2017')
 
 
 # Order Region Levels
@@ -204,9 +204,11 @@ plot_ordination(spi.obj, ord, color = "State_Region")+
   geom_point(size = 5)+
   #annotate(geom = 'text', x = 0, y = 0.25, label = 'R. sierrae', size = 6)+
   #stat_ellipse(type = "norm", level = 0.99)+
-  labs(color = "Region")+
+  labs(title = 'Prado-Irwin et al. Unweighted Unifrac',
+       subtitle = 'Matches Results from Study',
+       color = "Region")+
   theme(panel.border = element_blank(),
-        plot.title = element_text(size = 30, face = "bold"),
+        plot.title = element_text(size = 28, face = "bold"),
         plot.subtitle = element_text(size = 22, face = "italic"),
         legend.title = element_text(size = 16, family = "Georgia"),
         legend.text = element_text(size = 11, family = "Georgia"),
