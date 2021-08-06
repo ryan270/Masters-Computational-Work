@@ -23,6 +23,10 @@ amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza",
 the.royal <- c("#899DA4", "#9A8822", "#F5CDB4",
                "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
 
+# Subset Samples Based on Paper
+spi.obj <- subset_samples(amphib.obj, Dataset == 'Bird et al., 2018')
+
+
 # Order Region Levels
 sample_data(amphib.obj)$State_Region <-
     factor(sample_data(amphib.obj)$State_Region,
@@ -31,18 +35,6 @@ sample_data(amphib.obj)$State_Region <-
                          "Central America"))
 
 #----------------------------------------------------------------#
-#----------------------------------------------------------------#
-## REMOVE OUTLIERS (Optional): Remove Frogs with very high levels of
-# Proteobacteria
-acts <- transform_sample_counts(amphib.obj, function(x) x/ sum(x)) %>%
-    psmelt()
-
-outs <- acts$Sample[which(acts$Abundance > .8)] %>%
-    append(c("SE108", "SE107", "SE110", "SE37", "SE39", "SE44", "SE72"))
-
-nsmps <- setdiff(sample_names(amphib.obj), outs)
-amphib.obj <- prune_samples(nsmps, amphib.obj)
-
 #----------------------------------------------------------------#
 ## TAXA BARPLOT: Displays only the top OTUS for Each Region
 # Create Database of OTU's w/ 1% Category
@@ -202,17 +194,17 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
-ds <- phyloseq::distance(amphib.obj, method = "unifrac")
-ord <- ordinate(amphib.obj, "MDS", distance = ds)
+ds <- phyloseq::distance(spi.obj, method = "unifrac")
+ord <- ordinate(spi.obj, "MDS", distance = ds)
 
 #Plot
-plot_ordination(amphib.obj, ord, color = "State_Region", shape = "Order")+
+plot_ordination(spi.obj, ord, color = "State_Region")+
   scale_color_manual(values = c("#899DA4", "#FDDDA0", "#EE6A50", "#9A8822",
                                "#F8AFA8"))+
   geom_point(size = 5)+
   #annotate(geom = 'text', x = 0, y = 0.25, label = 'R. sierrae', size = 6)+
   #stat_ellipse(type = "norm", level = 0.99)+
-  labs(shape = "Host", color = "Region")+
+  labs(color = "Region")+
   theme(panel.border = element_blank(),
         plot.title = element_text(size = 30, face = "bold"),
         plot.subtitle = element_text(size = 22, face = "italic"),
