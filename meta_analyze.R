@@ -272,7 +272,6 @@ for(i in 1:nrow(cac)){
 }
 
 #Plot Map of California
-#Test to change the colors
 ggplot(data = cali, mapping = aes(x = long, y = lat, group = group,
                                   fill = 'white'))+
     coord_fixed(1.3)+
