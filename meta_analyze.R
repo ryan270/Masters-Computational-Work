@@ -24,7 +24,7 @@ the.royal <- c("#899DA4", "#9A8822", "#F5CDB4",
                "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
 
 # Subset Samples Based on Paper
-spi.obj <- subset_samples(amphib.obj, Dataset == 'Prado-Irwin et al., 2017')
+bird.obj <- subset_samples(amphib.obj, Dataset == 'Bird et al., 2018')
 
 
 # Order Region Levels
@@ -194,17 +194,17 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
-ds <- phyloseq::distance(spi.obj, method = "unifrac")
-ord <- ordinate(spi.obj, "MDS", distance = ds)
+ds <- phyloseq::distance(bird.obj, method = "unifrac")
+ord <- ordinate(bird.obj, "MDS", distance = ds)
 
 #Plot
-plot_ordination(spi.obj, ord, color = "State_Region")+
+plot_ordination(bird.obj, ord, color = "State_Region")+
   scale_color_manual(values = c("#899DA4", "#FDDDA0", "#EE6A50", "#9A8822",
                                "#F8AFA8"))+
   geom_point(size = 5)+
   #annotate(geom = 'text', x = 0, y = 0.25, label = 'R. sierrae', size = 6)+
   #stat_ellipse(type = "norm", level = 0.99)+
-  labs(title = 'Prado-Irwin et al. Unweighted Unifrac',
+  labs(title = 'Bird et al. Unweighted Unifrac',
        subtitle = 'Matches Results from Study',
        color = "Region")+
   theme(panel.border = element_blank(),
