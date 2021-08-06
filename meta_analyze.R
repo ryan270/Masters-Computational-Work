@@ -227,8 +227,6 @@ plot_ordination(amphib.obj, ord, color = "State_Region", shape = "Order")+
 
 #----------------------------------------------------------------#
 ##MAP THE SAMPLES
-# Need to reorganize california map plot to reflect that multipe authors sampled
-  # a given region
 #Map Mex/Gua Samples
 mgm <- get_stamenmap(bbox = c(bottom = 14.418492, left = -92.8479,
                               top = 16.098598, right = -90.227808),
