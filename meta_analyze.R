@@ -9,7 +9,7 @@
 # Set Directory and Load required Packages
 setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
 project_packages <- c('phyloseq', 'qiime2R','grid','gridExtra', 'vegan',
-                      'ggmap', 'maps' 'tidyverse')
+                      'ggmap', 'ggbrace', 'tidyverse')
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
@@ -32,7 +32,6 @@ sample_data(amphib.obj)$State_Region <-
 
 #----------------------------------------------------------------#
 #----------------------------------------------------------------#
-
 ## REMOVE OUTLIERS (Optional): Remove Frogs with very high levels of
 # Proteobacteria
 acts <- transform_sample_counts(amphib.obj, function(x) x/ sum(x)) %>%
@@ -45,7 +44,6 @@ nsmps <- setdiff(sample_names(amphib.obj), outs)
 amphib.obj <- prune_samples(nsmps, amphib.obj)
 
 #----------------------------------------------------------------#
-
 ## TAXA BARPLOT: Displays only the top OTUS for Each Region
 # Create Database of OTU's w/ 1% Category
 txs <- amphib.obj %>%
@@ -256,8 +254,7 @@ cali <- subset(map_data("state"), region == "california")
 cac <- subset(map_data("county"), region == "california")
 
 #For Loop that Divides California Counties into Regions
-cac['zone'] <- NA
-
+cac$zone <- NA
 for(i in 1:nrow(cac)){
         srrs <- c("placer", "el dorado", "madera")
         ccm <- c("san francisco", "alameda", "santa cruz",
@@ -277,11 +274,15 @@ for(i in 1:nrow(cac)){
 }
 
 #Plot Map of California
+#Test to change the colors
 ggplot(data = cali, mapping = aes(x = long, y = lat, group = group,
                                   fill = 'lightgray')) +
     coord_fixed(1.3) +
     geom_polygon(fill = 'lightgray')+
     geom_polygon(data = cac,  aes(fill = zone),  color = "white", size = 0.1)+
+    scale_fill_manual(values = c('#fddda0', '#899da4', '#ee6a50', '#9a8822'))
+
+
     geom_brace(aes(c(-125, -124.6), c(38, 42.2), label = 'Bird et al'),
                color = '#899DA4', labelsize = 4, rotate = 270,
                inherit.data = F)+
@@ -300,7 +301,8 @@ Bird et al.
 Ellison et al., 2018'),
                    rotate = 90, labelsize = 4, color = "#EE6A50",
                inherit.data = F)+
-    xlim(-127, -113.75)+
+    xlim(-126.1, -113.75)+
+    theme_void()+
     scale_fill_manual(values = c("#FDDDA0", "#899DA4", "#EE6A50", "#9A8822",
                                  'lightgray'),
                       name = "State Regions",
