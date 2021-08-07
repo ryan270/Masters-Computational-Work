@@ -24,7 +24,7 @@ the.royal <- c("#899DA4", "#9A8822", "#F5CDB4",
                "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
 
 # Subset Samples Based on Paper
-bird.obj <- subset_samples(amphib.obj, Dataset == 'Bird et al., 2018')
+se.obj <- subset_samples(amphib.obj, Dataset == 'Ellison et al., 2019')
 
 
 # Order Region Levels
@@ -35,6 +35,17 @@ sample_data(amphib.obj)$State_Region <-
                          "Central America"))
 
 #----------------------------------------------------------------#
+## REMOVE OUTLIERS (Optional): Remove Frogs with very high levels of
+# Proteobacteria
+acts <- transform_sample_counts(amphib.obj, function(x) x/ sum(x)) %>%
+    psmelt()
+
+outs <- acts$Sample[which(acts$Abundance > .8)] %>%
+    append(c("SE108", "SE107", "SE110", "SE37", "SE39", "SE44", "SE72"))
+
+nsmps <- setdiff(sample_names(amphib.obj), outs)
+amphib.obj <- prune_samples(nsmps, amphib.obj)
+
 #----------------------------------------------------------------#
 ## TAXA BARPLOT: Displays only the top OTUS for Each Region
 # Create Database of OTU's w/ 1% Category
@@ -47,7 +58,7 @@ txs <- amphib.obj %>%
 # Make a 1% category of Proteobacterial Abundance
 txs$Phylum <- as.character(txs$Phylum)
 
-# Re-Order Levels
+# Re-Order Level
 txs$Phylum <- factor(txs$Phylum,
                           levels = c("Acidobacteria", "Actinobacteria",
                                      "Armatimonadetes", "Bacteroidetes",
@@ -194,24 +205,19 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
-ds <- phyloseq::distance(bird.obj, method = "unifrac")
-ord <- ordinate(bird.obj, "MDS", distance = ds)
+ds <- phyloseq::distance(se.obj, method = "unifrac")
+ord <- ordinate(se.obj, "MDS", distance = ds)
 
 #Plot
-plot_ordination(bird.obj, ord, color = "State_Region")+
-  scale_color_manual(values = c("#899DA4", "#FDDDA0", "#EE6A50", "#9A8822",
-                               "#F8AFA8"))+
-  geom_point(size = 5)+
+plot_ordination(se.obj, ord)+
+  geom_point(size = 5, color = '#ee6a50')+
+  labs(title = 'Ellison et al., 2019 Unweighted Unifrac',
+       subtitle = 'Matches Results from Study')+
   #annotate(geom = 'text', x = 0, y = 0.25, label = 'R. sierrae', size = 6)+
   #stat_ellipse(type = "norm", level = 0.99)+
-  labs(title = 'Bird et al. Unweighted Unifrac',
-       subtitle = 'Matches Results from Study',
-       color = "Region")+
   theme(panel.border = element_blank(),
         plot.title = element_text(size = 28, face = "bold"),
         plot.subtitle = element_text(size = 22, face = "italic"),
-        legend.title = element_text(size = 16, family = "Georgia"),
-        legend.text = element_text(size = 11, family = "Georgia"),
         axis.title.x = element_text(size = 16, family = "Georgia"),
         axis.title.y = element_text(size = 16, family = "Georgia"),
         panel.grid.major = element_line(size = .45, linetype = 'solid',
