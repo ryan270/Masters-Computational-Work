@@ -205,7 +205,7 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
-ds <- phyloseq::distance(se.obj, method = "unifrac")
+ds <- phyloseq::distance(se.obj, method = "wunifrac")
 ord <- ordinate(se.obj, "MDS", distance = ds)
 
 #Plot
