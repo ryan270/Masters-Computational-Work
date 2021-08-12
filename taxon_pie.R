@@ -1,6 +1,7 @@
-###TAXON PIE CHARTS
-#This script will make pie charts from the preliminary taxonomic counts from ensatina_data
-#pie charts made from taxonomy before sampling was random
+### TAXON PIE CHARTS
+# This script will make pie charts from the preliminary taxonomic counts from
+# ensatina_data
+# pie charts made from taxonomy before sampling was random
 # sample list ~/Documents/ensatina_x/qiime_work_2/sample_list.txt
 
 ##SET DIRECTORY AND LOAD PACKAGES
