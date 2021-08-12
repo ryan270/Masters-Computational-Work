@@ -10,50 +10,50 @@ sapply(pcks, require, character.only = T)
 require(data.table)
 
 #Load .tsv files
-tax.1 <- as.data.frame(fread('qiime_analyses/AB_taxonomy.tsv'))
-summary(tax.1)
+tax_1 <- as.data.frame(fread('qiime_analyses/AB_taxonomy.tsv'))
+summary(tax_1)
 
 ##FORMATTING
 #remove first row
-tax.1 <- tax.1[-c(1),]
+tax_1 <- tax_1[-c(1),]
 
 #Rename default name to family name for the first pie chart
-for (i in tax.1$Taxon) {
+for (i in tax_1$Taxon) {
   if (str_detect(i, 'Proteobacteria') ==  TRUE) {
-    gsub('Proteobacteria', tax.1$Taxon)
+    gsub('Proteobacteria', tax_1$Taxon)
   }
 }
 
 
-tax.1$Taxon <- (gsub('k__Bacteria; p__Chlamydiae; c__Chlamydiia;
+tax_1$Taxon <- (gsub('k__Bacteria; p__Chlamydiae; c__Chlamydiia;
                      o__Chlamydiales; f__Chlamydiaceae',
-                     'Chlamydiaceae', tax.1$Taxon))
-tax.1$Taxon <- (gsub("k__Bacteria; p__Acidobacteria; c__Acidobacteriia;
+                     'Chlamydiaceae', tax_1$Taxon))
+tax_1$Taxon <- (gsub("k__Bacteria; p__Acidobacteria; c__Acidobacteriia;
                      o__Acidobacteriales; f__Acidobacteriaceae;
                      g__Granulicella; s__paludicola",
-                     'Acidobacteriaceae', tax.1$Taxon))
-tax.1$Taxon <- (gsub("k__Bacteria; p__Bacteroidetes; c__Sphingobacteriia;
+                     'Acidobacteriaceae', tax_1$Taxon))
+tax_1$Taxon <- (gsub("k__Bacteria; p__Bacteroidetes; c__Sphingobacteriia;
                      o__Sphingobacteriales; f__Sphingobacteriaceae;
                      g__Mucilaginibacter; s__rigui",
-                     'Sphingobacteriaceae', tax.1$Taxon))
-tax.1$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria;
+                     'Sphingobacteriaceae', tax_1$Taxon))
+tax_1$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria;
                     o__Xanthomonadales; f__Xanthomonadaceae; g__Arenimonas;
                     s__oryziterrae",
-                    'Xanthomonadaceae', tax.1$Taxon)
-tax.1$Taxon <- gsub("k__Bacteria; p__Actinobacteria; c__Actinobacteria;
+                    'Xanthomonadaceae', tax_1$Taxon)
+tax_1$Taxon <- gsub("k__Bacteria; p__Actinobacteria; c__Actinobacteria;
                     o__Actinomycetales; f__Nocardioidaceae; g__Nocardioides",
-                    'Nocardioidaceae', tax.1$Taxon)
-tax.1$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria;
+                    'Nocardioidaceae', tax_1$Taxon)
+tax_1$Taxon <- gsub("k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria;
                     o__Enterobacteriales; f__Enterobacteriaceae; g__Pseudomonas;
                     s__syringae",
-                    'Enterobacteriaceae', tax.1$Taxon)
-tax.1$Taxon <- gsub("k__Bacteria; p__Bacteroidetes; c__Sphingobacteriia;
+                    'Enterobacteriaceae', tax_1$Taxon)
+tax_1$Taxon <- gsub("k__Bacteria; p__Bacteroidetes; c__Sphingobacteriia;
                     o__Sphingobacteriales; f__Sphingobacteriaceae;
                     g__Cytophagales; s__MBIC4147",
-                    'Sphingobacteriaceae', tax.1$Taxon)
-tax.1$Taxon <- gsub("k__Bacteria; p__Actinobacteria; c__Actinobacteria;
+                    'Sphingobacteriaceae', tax_1$Taxon)
+tax_1$Taxon <- gsub("k__Bacteria; p__Actinobacteria; c__Actinobacteria;
                     o__Actinomycetales; f__Micromonosporaceae",
-                    'Micromonosporaceae', tax.1$Taxon)
+                    'Micromonosporaceae', tax_1$Taxon)
 
 #blank theme for pie_chart
 blank_theme <- theme_minimal()+
@@ -69,7 +69,7 @@ blank_theme <- theme_minimal()+
 
 #TAXONOMY 1 PIE CHART!!
 #can't store plot as variable
-ggplot(tax.1, aes(x = factor(1), fill = Taxon))+
+ggplot(tax_1, aes(x = factor(1), fill = Taxon))+
   geom_bar(width = 1)+
   coord_polar('y', start = 0)+
   blank_theme+
@@ -79,7 +79,7 @@ ggplot(tax.1, aes(x = factor(1), fill = Taxon))+
   theme(plot.subtitle = element_text(size = 22, face = "italic"))+
   theme(legend.position = 'none') #use in case you don't correct names
 
-ggplot(data = tax.1, aes(x = Taxon))+
+ggplot(data = tax_1, aes(x = Taxon))+
   geom_col(stat = 'count')
 
 

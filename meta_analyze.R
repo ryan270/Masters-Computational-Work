@@ -7,29 +7,29 @@
 
 ## LOAD PACKAGES, DATA, AND DIRECTORY
 # Set Directory and Load required Packages
-setwd('~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/')
-project_packages <- c('phyloseq', 'qiime2R','grid','gridExtra', 'vegan',
-                      'ggmap', 'ggbrace', 'tidyverse')
+setwd("~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/")
+project_packages <- c("phyloseq", "qiime2R", "grid", "gridExtra", "vegan",
+                      "ggmap", "ggbrace", "tidyverse")
 sapply(project_packages, require, character.only = TRUE)
 
 #Create Phyloseq Object / Load data / Filter Ambiguous Orders
-amphib.obj <- subset_taxa(qza_to_phyloseq(features="meta_c2_phy_table.qza",
+amphib_obj <- subset_taxa(qza_to_phyloseq(features = "meta_c2_phy_table.qza",
                                           taxonomy = "meta_taxonomy.qza",
                                           tree = "meta_rootd.qza",
-                                          metadata="merged_metadata.txt"),
+                                          metadata = "merged_metadata.txt"),
                           !is.na(Order) & !Order %in% c("", "uncharacterized"))
 
 # Very Important
-the.royal <- c("#899DA4", "#9A8822", "#F5CDB4",
+royal <- c("#899DA4", "#9A8822", "#F5CDB4",
                "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
 
 # Subset Samples Based on Paper
-se.obj <- subset_samples(amphib.obj, Dataset == 'Ellison et al., 2019')
+se_obj <- subset_samples(amphib_obj, Dataset == "Ellison et al., 2019")
 
 
 # Order Region Levels
-sample_data(amphib.obj)$State_Region <-
-    factor(sample_data(amphib.obj)$State_Region,
+sample_data(amphib_obj)$State_Region <-
+    factor(sample_data(amphib_obj)$State_Region,
               levels = c("Northern California", "Coastal California",
                          "Sierra Nevada", "Southern California",
                          "Central America"))
@@ -37,21 +37,21 @@ sample_data(amphib.obj)$State_Region <-
 #----------------------------------------------------------------#
 ## REMOVE OUTLIERS (Optional): Remove Frogs with very high levels of
 # Proteobacteria
-acts <- transform_sample_counts(amphib.obj, function(x) x/ sum(x)) %>%
+acts <- transform_sample_counts(amphib_obj, function(x) x / sum(x)) %>%
     psmelt()
 
 outs <- acts$Sample[which(acts$Abundance > .8)] %>%
     append(c("SE108", "SE107", "SE110", "SE37", "SE39", "SE44", "SE72"))
 
-nsmps <- setdiff(sample_names(amphib.obj), outs)
-amphib.obj <- prune_samples(nsmps, amphib.obj)
+nsmps <- setdiff(sample_names(amphib_obj), outs)
+amphib_obj <- prune_samples(nsmps, amphib_obj)
 
 #----------------------------------------------------------------#
 ## TAXA BARPLOT: Displays only the top OTUS for Each Region
 # Create Database of OTU's w/ 1% Category
-txs <- amphib.obj %>%
+txs <- amphib_obj %>%
     transform_sample_counts(function(x) x / sum(x)) %>%
-    tax_glom(taxrank = 'Phylum') %>%
+    tax_glom(taxrank = "Phylum") %>%
     psmelt() %>%
     mutate(Prbd = as.numemric(0))
 
@@ -67,25 +67,25 @@ txs$Phylum <- factor(txs$Phylum,
                                      "Elusimicrobia", "Fibrobacteres",
                                      "Firmicutes", "Fusobacteria",
                                      "Gemmatimonadetes", "Lentisphaerae",
-                                     "Nitrospirae","Planctomycetes",
-                                     "Proteobacteria","TM7", "Verrucomicrobia",
+                                     "Nitrospirae", "Planctomycetes",
+                                     "Proteobacteria", "TM7", "Verrucomicrobia",
                                      "WS3", "[Thermi]",
                                      "<1% Abundance"))
 
 #Plot Relative Abundances
-abs <- ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
-    facet_wrap(~State_Region, scales = "free_x", nrow = 3)+
-    geom_bar(aes(), stat="identity", position="stack") +
+abs <- ggplot(txs, aes(x = Sample, y = Abundance, fill = Phylum)) +
+    facet_wrap(~State_Region, scales = "free_x", nrow = 3) +
+    geom_bar(aes(), stat = "identity", position = "stack") +
     scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FDDDA0",
                                  "#78B7C5", "#FF0000", "#00A08A", "#F2AD00",
                                  "#F98400", "#46ACC8", "#ECCBAE", "#F5CDB4",
                                  "#D69C4E", "#ABDDDE", "#446455", "#FDD262",
-                                 "#EE6A50", "#899DA4","#D3DDDC", "#9A8822",
-                                 "#046C9A", "#000000"))+
-    ylab('Relative Abunance')+
-    theme(legend.justification = c(1,0), legend.position = c(1,0),
-          legend.key.height = unit(0.75, 'cm'),
-          legend.key.width = unit(1.3, 'cm'),
+                                 "#EE6A50", "#899DA4", "#D3DDDC", "#9A8822",
+                                 "#046C9A", "#000000")) +
+    ylab("Relative Abunance") +
+    theme(legend.justification = c(1, 0), legend.position = c(1, 0),
+          legend.key.height = unit(0.75, "cm"),
+          legend.key.width = unit(1.3, "cm"),
           axis.title = element_text(size = 16, family = "Georgia"),
           axis.text.x = element_blank(),
           axis.ticks.x = element_blank(), axis.title.x = element_blank(),
@@ -94,8 +94,8 @@ abs <- ggplot(txs, aes(x=Sample, y=Abundance, fill=Phylum))+
           strip.text = element_text(size = 14, family = "Georgia",
                                     face = "bold"),
           panel.background = element_rect(fill = "gray98"),
-          panel.grid.major = element_blank())+
-    guides(fill=guide_legend(nrow=6, title.position = 'top'),
+          panel.grid.major = element_blank()) +
+    guides(fill=guide_legend(nrow=6, title.position = "top"),
        theme(element_text(family = "Georgia")))
 
 #View Plot
@@ -103,23 +103,24 @@ abs
 
 #Fill Label Matches the Region Color
 g <- ggplot_gtable(ggplot_build(abs))
-stripr <- which(grepl('strip-t', g$layout$name))
+stripr <- which(grepl("strip-t", g$layout$name))
 flls <- c("#F8AFA8", "#EE6A50", "#9A8822", "#899DA4", "#FDDDA0")
 k <- 1
-for(i in c(32,34,35,36,37)) {
-    j <- which(grepl('rect', g$grobs[[i]]$grobs[[1]]$childrenOrder))
+for(i in c(32, 34, 35, 36, 37)) {
+    j <- which(grepl("rect", g$grobs[[i]]$grobs[[1]]$childrenOrder))
     g$grobs[[i]]$grobs[[1]]$children[[j]]$gp$fill <- flls[k]
-    k <- k+1
+    k <- k + 1
 }
 grid.draw(g)
 
 #----------------------------------------------------------------#
 ##ALPHA DIVERSITY: plot and compare species richness and evenness
 #Calculate Evenness & Create DF with Evenness
-alphas <- estimate_richness(amphib.obj,
+
+alphas <- estimate_richness(amphib_obj,
                             measure = c("Chao1", "Shannon", "Simpson"))
 alphas$Evenness <- 0
-for(i in 1:nrow(alphas)){
+for(i in 1:nrow(alphas)) {
   H <- alphas$Shannon
   S1 <- alphas$Chao1
   S <- log(S1)
@@ -127,7 +128,7 @@ for(i in 1:nrow(alphas)){
 }
 
 #ANOVA Assumption Tests
-asa = merge(alphas, sample_data(amphib.obj), by = 0, all = TRUE)
+asa = merge(alphas, sample_data(amphib_obj), by = 0, all = TRUE)
 shapiro.test(alphas$Shannon) #FAILED: p = 0.02106
 bartlett.test(Evenness ~ State_Region, data = asa) #FAILED: p = 0.0049
 
@@ -136,7 +137,7 @@ bartlett.test(Evenness ~ State_Region, data = asa) #FAILED: p = 0.0049
 adonis(Evenness ~ State_Region, data = asa, permutations = 999)
 
 #Plot Facet-Wrapped Boxpolot of Richness and Evenness
-alpha2 <- tidyr::gather(data.frame(alphas, sample_data(amphib.obj)),
+alpha2 <- tidyr::gather(data.frame(alphas, sample_data(amphib_obj)),
                         key = "Measure",
                         value = "Value", Shannon, Chao1, Simpson, Evenness)
 
@@ -170,11 +171,11 @@ names(pca.list) = dist_models
 
 #For loop that loops through all of the distance models and calculates them
 for (i in dist_models) {
-  iDist <- phyloseq::distance(amphib.obj, method=i)
-  iMDS  <- ordinate(amphib.obj, "MDS", distance = iDist)
+  iDist <- phyloseq::distance(amphib_obj, method=i)
+  iMDS  <- ordinate(amphib_obj, "MDS", distance = iDist)
   #Make plot
   p <- NULL
-  p <- plot_ordination(amphib.obj, iMDS, color="State_Region", shape="Order")+
+  p <- plot_ordination(amphib_obj, iMDS, color="State_Region", shape="Order")+
     ggtitle(paste("Distance Method ", i, sep=""))+
     geom_point(size = 4)+
     theme(plot.title = element_text(size = 12, family = "Georgia"))
@@ -190,7 +191,7 @@ print(pca.list[['unifrac']])
 #Plots Methods Confirming Distinctions
 ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
   geom_point(size=1.5, alpha = 0.8)+
-  scale_color_manual(values = the.royal)+
+  scale_color_manual(values = royal)+
   facet_wrap(~distance, scales="free")+
   labs(color = "State Region", x = "Axis 1", y = "Axis 2",
        shape = "Taxonomic Order")+
@@ -205,11 +206,11 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order))+
 
 #Use to Calculate Distances without For Loop on the Fly
 #Unweighted Unifrac -- The Plot
-ds <- phyloseq::distance(se.obj, method = "wunifrac")
-ord <- ordinate(se.obj, "MDS", distance = ds)
+ds <- phyloseq::distance(se_obj, method = "wunifrac")
+ord <- ordinate(se_obj, "MDS", distance = ds)
 
 #Plot
-plot_ordination(se.obj, ord)+
+plot_ordination(se_obj, ord)+
   geom_point(size = 5, color = '#ee6a50')+
   labs(title = 'Ellison et al., 2019 Unweighted Unifrac',
        subtitle = 'Matches Results from Study')+
@@ -234,7 +235,7 @@ mgm <- get_stamenmap(bbox = c(bottom = 14.418492, left = -92.8479,
                      crop = TRUE, color = "bw")
 
 ggmap(mgm)+
-    geom_point(data = sample_data(amphib.obj), color = "#F8AFA8",
+    geom_point(data = sample_data(amphib_obj), color = "#F8AFA8",
                aes(x = Longitude, y = Latitude, shape = Order),
                size = 8, alpha = 0.6)+
     theme_void()+
@@ -312,7 +313,7 @@ Ellison et al., 2018'),
 ##CLUSTER ANALYSIS
 #Computing the Gap Statistic: this tells the most likely number of clusters
 #Ordinate Data
-exord.amp = ordinate(amphib.obj, method="MDS", distance="bray")
+exord.amp = ordinate(amphib_obj, method="MDS", distance="bray")
 
 #Compute Gap Statistic
 library(cluster)
@@ -325,7 +326,7 @@ gskmn #shows that I have 6 clusters in dataset
 #----------------------------------------------------------------#
 ##OTU ANALYSIS: Calculate the Difference in OTU Abundance Between Regions
 #Convert physeq object to DESeq object
-da <- phyloseq_to_deseq2(amphib.obj, ~ State_Region)
+da <- phyloseq_to_deseq2(amphib_obj, ~ State_Region)
 gm_mean = function(x, na.rm=TRUE){
   exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
 }
@@ -336,14 +337,14 @@ da <- DESeq(da, fitType="local")
 
 #For Loop that Compares the Abundances of OTU's Between Regions
 for (i in c(1,2,4,5)){
-  altrg = levels(sample_data(amphib.obj)$State_Region)[i]
+  altrg = levels(sample_data(amphib_obj)$State_Region)[i]
   res = results(da, contrast =
                 c("State_Region", "Sierra Nevada", altrg), alpha = 0.01)
   res = res[order(res$padj, na.last=NA), ]
   res_sig = res[(res$padj < 0.01), ]
   res_sig$Comparison <- as.factor(paste0("Sierra Nevada vs ", altrg))
   assign(paste0("res_sig", i), cbind(as(res_sig, "data.frame"),
-        as(tax_table(amphib.obj)[rownames(res_sig), ], "matrix")))
+        as(tax_table(amphib_obj)[rownames(res_sig), ], "matrix")))
   #Merge & Delete Tables
   while(i == 5){
       otu_res <- Reduce(function(x,y) merge(x,y, all = TRUE),
@@ -391,13 +392,13 @@ grid.draw(h)
 
 #----------------------------------------------------------------#
 ##PERMANOVA: Confirms there are Diversity differences between the Groups
-md = data.frame(sample_data(amphib.obj))
-perm <- adonis(phyloseq::distance(amphib.obj, method="wunifrac") ~ Family,
+md = data.frame(sample_data(amphib_obj))
+perm <- adonis(phyloseq::distance(amphib_obj, method="wunifrac") ~ Family,
        data = md, permutations = 999)
 print(perm)
 
 #Pairwise PERMANOVA: Pairwise analysis of Diversity Differences
-permutest(betadisper(phyloseq::distance(amphib.obj, method = "wunifrac"),
+permutest(betadisper(phyloseq::distance(amphib_obj, method = "wunifrac"),
                      md$Order),pairwise = TRUE)
 
 #----------------------------------------------------------------#
