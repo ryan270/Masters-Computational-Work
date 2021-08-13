@@ -68,7 +68,7 @@ semap$Family <- "Ranidae"
 semap$Order <- "Frog"
 
 #Change Caudata & Anura to Frog and Salamander
-for (i in seq_len(mgmap)) {
+for (i in seq_len(nrow(mgmap))) {
   if (mgmap$Order[i] == "Caudata") {
     mgmap$Order[i] <- "Salamander"
   } else if (mgmap$Order[i] == "Anura") {
@@ -81,7 +81,7 @@ for (i in seq_len(mgmap)) {
 ##DIVIDE CALIFORNIA INTO FOUR REGIONS
 #For Loops x Dataset
 abmap$State_Region <- 0
-for (i in seq_len(abmap)) {
+for (i in seq_len(nrow(abmap))) {
   if (abmap$Site[i] == "Alameda" || abmap$Site[i] == "Monterey") {
     abmap$State_Region[i] <- "Coastal California"
   } else if (abmap$Site[i] == "Jackson_State_Forest" ||
@@ -97,9 +97,9 @@ for (i in seq_len(abmap)) {
 }
 
 spimap$State_Region <- 0
-for (i in seq_len(spimap)) {
-  if (spimap$Site[i] == "Alameda" || spimap$Site[i] == "Santa.Cruz"
-      || spimap$pop[i] == "north.bay") {
+for (i in seq_len(nrow(spimap))) {
+  if (spimap$Site[i] == "Alameda" || spimap$Site[i] ==
+      "Santa.Cruz" || spimap$pop[i] == "north.bay") {
     spimap$State_Region[i] <- "Coastal California"
   } else if (spimap$Site[i] == "Madera") {
     spimap$State_Region[i] <- "Sierra Nevada"
@@ -175,5 +175,5 @@ meta_3 <- full_join(meta_1, meta_2, by = c("SampleID", "Genus", "Species",
                     copy = TRUE)
 
 ##EXPORT: write out table
-write.table(meta_3, file = "merged_metadata.txt", append = FALSE, sep = "\t",
+write.csv(meta_3, file = "~/Desktop/merged_metadata.csv", append = FALSE,
             row.names = FALSE, col.names = TRUE, quote = FALSE)
