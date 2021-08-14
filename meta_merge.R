@@ -51,21 +51,42 @@ mgmap <- mgmap[-c(78:82), ]
 mgmap$Latitude <- as.numeric(mgmap$Latitude)
 mgmap$Longitude <- as.numeric(mgmap$Longitude)
 
-
-
-#-------------------------#
 ##ORGANIZE TAXONOMY
 #create new columns with Taxonomic Rank
-abmap$Family <- "Plethodontidae"
-abmap$Order <- "Salamander"
-spimap$Family <- "Plethodontidae"
-spimap$Order <- "Salamander"
-spimap$Genus <- "Ensatina"
-spimap$Species <- "Ensatina_eschscholtzii"
-semap$Species <- "Rana_sierrae"
-semap$Genus <- "Rana"
-semap$Family <- "Ranidae"
-semap$Order <- "Frog"
+abmap$Family = "Plethodontidae"
+abmap$Order = 'Salamander'
+spimap$Family = 'Plethodontidae'
+spimap$Order = 'Salamander'
+spimap$Genus = 'Ensatina'
+spimap$Species = 'Ensatina_eschscholtzii'
+semap$Species = 'Rana_sierrae'
+semap$Genus = 'Rana'
+semap$Family = 'Ranidae'
+semap$Order = 'Frog'
+
+# Reformat BD Status to Binary
+# Bird
+abmap$Bd_status <- 0
+
+# MG
+for (i in seq_len(nrow(mgmap))) {
+         if (mgmap$Bd_status[i] == "Negative") {
+             mgmap$Bd_status[i] <- 0
+         } else {
+             mgmap$Bd_status[i] <- 1
+         }
+}
+mgmap$Bd_status <- as.numeric(mgmap$Bd_status)
+
+# R Sierrae
+for (i in which(!is.na(semap$Bd_status) == TRUE)) {
+         if (semap$Bd_status[i] == "Negative") {
+             semap$Bd_status[i] <- 0
+         } else if (semap$Bd_status[i] == "Positive") {
+             semap$Bd_status[i] <- 1
+         }
+}
+semap$Bd_status <- as.numeric(semap$Bd_status)
 
 #Change Caudata & Anura to Frog and Salamander
 for (i in seq_len(nrow(mgmap))) {
@@ -109,7 +130,6 @@ for (i in seq_len(nrow(spimap))) {
     spimap$State_Region[i] <- "Southern California"
   }
 }
-spimap <- select(spimap, -c(pop))
 
 semap$State_Region <- "Sierra Nevada"
 
@@ -117,7 +137,7 @@ semap$State_Region <- "Sierra Nevada"
 #-------------------------#
 ##ADD GPS
 #For Loop that adds randomized lat/long
-for (i in seq_len(semap)) {
+for (i in seq_len(nrow(semap))) {
     if (i < 32) {
         semap$Latitude[i] <- 38.934
         semap$Longitude[i] <- -120.1475
@@ -156,24 +176,28 @@ mgmap$Dataset <- as.character("Ellison et al., 2018", quote = FALSE)
 semap$Dataset <- as.character("Ellison et al., 2019", quote = FALSE)
 spimap$Dataset <- as.character("Prado-Irwin et al., 2017", quote = FALSE)
 
-
 #-------------------------#
+##JOIN & EXPORT TABLES
+
 ##JOIN TABLES
-meta_1 <- full_join(semap, mgmap, by = c("SampleID", "Bd_status", "Species",
-                                         "Genus", "Family", "Site", "Order",
-                                         "Dataset", "State_Region", "Latitude",
-                                         "Longitude"), copy = TRUE)
-meta_2 <- full_join(abmap, spimap, by = c("SampleID", "Genus", "Species",
-                                          "Family", "Order", "Site", "Dataset",
-                                          "Latitude", "Longitude", "subspecies",
-                                           "State_Region"), copy = TRUE)
-meta_3 <- full_join(meta_1, meta_2, by = c("SampleID", "Genus", "Species",
-                                           "Family", "Order", "subspecies",
-                                           "Habitat", "State_Region", "Dataset",
-                                           "Latitude",
-                                           "Longitude", "Site", "Bd_status"),
-                    copy = TRUE)
+meta_1 <- full_join(semap, mgmap, by = c('SampleID', 'Bd_status',
+                                         "State_Region", "Site", "Dataset",
+                                         "Longitude", "Latitude",
+                                         "Family", "Genus", "Species",
+                                         "Order"), copy = TRUE)
+
+meta_2 <- full_join(abmap, spimap, by = c('SampleID', 'Genus', 'Species',
+                                          'Family', 'Order', 'Site', 'Dataset',
+                                          'Latitude', 'Longitude', 'subspecies',
+                                           'State_Region'), copy = TRUE)
+
+meta_3 <- full_join(meta_1, meta_2, by = c('SampleID', 'Genus', 'Species',
+                                           'Family', 'Order', 'subspecies',
+                                           'Habitat', 'State_Region', 'Dataset',
+                                           'Latitude',
+                                           'Longitude', 'Site', 'Bd_status'), copy = TRUE)
+
 
 ##EXPORT: write out table
-write.csv(meta_3, file = "~/Desktop/merged_metadata.csv", append = FALSE,
-            row.names = FALSE, col.names = TRUE, quote = FALSE)
+write.table(meta_3, file = 'merged_metadata.txt', append = FALSE, sep = '\t',
+            row.names = FALSE, quote = FALSE, col.names = TRUE)
