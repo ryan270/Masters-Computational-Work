@@ -5,6 +5,7 @@
 #-------------------------#
 ## IMPORT DATA & LIBRAIES
 # Import Libraries
+from numpy.lib.shape_base import column_stack
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,10 +21,12 @@ md = pd.read_table('~/Documents/amphibian_meta_project/meta_analysis/' +
 
 #-------------------------#
 ## EXPLORATORY DATA ANALYSIS
-md.shape
-md.head
-md.columns
-md.describe()
+np.shape(md)
+
+# Visualize Differences
+pd.crosstab(md.Dataset, md.Bd_status).plot(kind = 'bar')
+plt.show()
+
 
 # Drop Columns not Important to Study & NA's
 md = md.drop(['State_Province', 'Habitat', 'pop', 'subspecies'], axis = 1)
