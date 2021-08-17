@@ -6,7 +6,7 @@
 ## IMPORT DATA & LIBRAIES
 # Import Libraries
 import pandas as pd
-import numpy as n
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
@@ -27,15 +27,12 @@ md.head()
 md.shape
 print(md.columns)
 
-# Visualize Differences
-pd.crosstab(md['Species'], md['Bd_status']).plot(kind = 'bar')
-plt.show()
-print(type(md))
 
 #-------------------------#
 ## CLEAN & FORMAT DATA
-# List only columns useful to study
-['Latitude', 'State_Region', 'Species']
+# List only columns useful to study & drop NA's
+md = md[['Latitude', 'State_Region', 'Species', 'Bd_status']]
+md = md.dropna(axis = 0)
 
 # Create Dummy Variables
 rgs = pd.get_dummies(md['State_Region'], drop_first=True)
@@ -46,16 +43,20 @@ lat = md['Latitude']
 x = pd.concat([rgs, spp, lat], axis=1)
 y = md.Bd_status
 md1 =  pd.concat([rgs, spp, lat, y], axis=1)
-md1.columns
-
 
 
 #-------------------------#
-## BUILD REGRESSION MODEL
-# Define Classificatioin Model
-model = LogisticRegression(solver='liblinear', random_state=0)
+## BUILD REGRESSION MODEl
+# Train test split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.3)
 
+# Build our model
+mdl = LogisticRegression()
 
+# Train our model
+mdl.fit(x_train, y_train)
 
-
-
+# Test our model
+predictions = mdl.predict(x_test)
+plt.hist(y_test - predictions)
+plt.show()
