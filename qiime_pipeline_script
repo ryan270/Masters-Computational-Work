@@ -20,6 +20,15 @@ qiime tools import
 #-----end-import----#
 
 
+## VISUALIZING
+# Tabuluting is the main method of visualizing aross steps in the process
+qiime feature-table tabulate
+--i-table table.qza
+--o-visualization table.qzv
+--m-sample-metadata-file metadata.tsv
+#-----end-visualization----#
+
+
 #DEREP/DENOISE SEQUENCES
 #denoise and derep .fastq seqs w/ uniform length
 qiime dada2 denoise-paired
