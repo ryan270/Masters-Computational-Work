@@ -125,8 +125,8 @@ for (i in seq_len(alphas)) {
 
 #ANOVA Assumption Tests
 asa <- merge(alphas, sample_data(amphib_obj), by = 0, all = TRUE)
-shapiro.test(alphas$Shannon) #FAILED: p = 0.02106
-bartlett.test(Evenness ~ State_Region, data = asa) #FAILED: p = 0.0049
+shapiro.test(alphas$Shannon) #FAILED: p is 0.02106
+bartlett.test(Evenness ~ State_Region, data = asa) #FAILED: p is 0.0049
 
 #PERMANOVA Richness Comparison
 #Not even: p = 0.001
@@ -335,9 +335,9 @@ gm_mean <- function(x, na.rm = TRUE) {
   exp(sum(log(x[x > 0]), na.rm = na.rm) / length(x))
 }
 
-geoMeans <- apply(counts(da), 1, gm_mean)
-da <- estimateSizeFactors(da, geoMeans = geoMeans)
-da <- DESeq(da, fitType ="local")
+geo_means <- apply(counts(da), 1, gm_mean)
+da <- estimateSizeFactors(da, geo_means = geo_means)
+da <- DESeq(da, fitType = "local")
 
 #For Loop that Compares the Abundances of OTU"s Between Regions
 for (i in c(1, 2, 4, 5)) {
@@ -350,17 +350,17 @@ for (i in c(1, 2, 4, 5)) {
   assign(paste0("res_sig", i), cbind(as(res_sig, "data.frame"),
         as(tax_table(amphib_obj)[rownames(res_sig), ], "matrix")))
   #Merge & Delete Tables
-  while(i == 5) {
+  while (i == 5) {
       otu_res <- Reduce(function(x, y) merge(x, y, all = TRUE),
                         list(res_sig1, res_sig2, res_sig4, res_sig5))
       rm(altrg, res, res_sig, res_sig1, res_sig2, res_sig4, res_sig5)
-      i = i + 1
+      i <- i + 1
   }
 }
 
 #Plot OTU Abundances
-otup <- ggplot(otu_res, aes(x = Order, y = log2FoldChange))+
-    geom_col(aes(fill = Phylum), width = 1)+
+otup <- ggplot(otu_res, aes(x = Order, y = log2FoldChange)) +
+    geom_col(aes(fill = Phylum), width = 1) +
     scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FFC307",
                                  "#78B7C5", "#CC99CC", "#00A08A", "#FDDDA0",
                                  "#D69C4E", "#FDD262", "#D3DDDC", "#EE6A50",
