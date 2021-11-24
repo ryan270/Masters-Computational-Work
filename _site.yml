@@ -1,0 +1,8 @@
+name: "Master's Project"
+navbar:
+  title: "The Majority of the Work in My Master's"
+  left:
+    - text: "Home"
+      href: taxon_pie.html
+    - text: "About"
+      href: about.html
