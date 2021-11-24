@@ -6,7 +6,7 @@
 
 ##SET DIRECTORY AND LOAD PACKAGES
 setwd("/Users/ade/Documents/amphibian_meta_project/california_x/")
-pcks <- c("ggplot2", "ggthemes", "stringr")
+pcks <- c("ggplot2", "ggthemes", "stringr", "rmarkdown")
 sapply(pcks, require, character.only = T)
 require(data.table)
 
