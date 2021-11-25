@@ -2,8 +2,13 @@
 title: "My Homepage"
 author: "ade"
 date: "January 2019"
-output: html_document
+output: github_document
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
 
 ### TAXON PIE CHARTS
 # This script will make pie charts from the preliminary taxonomic counts from
