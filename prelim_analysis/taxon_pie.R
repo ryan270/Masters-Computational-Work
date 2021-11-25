@@ -1,15 +1,3 @@
----
-title: "My Homepage"
-author: "ade"
-date: "January 2019"
-output: github_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-
 ### TAXON PIE CHARTS
 # This script will make pie charts from the preliminary taxonomic counts from
 # ensatina_data
@@ -18,12 +6,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ##SET DIRECTORY AND LOAD PACKAGES
 setwd("/Users/ade/Documents/amphibian_meta_project/california_x/")
-pcks <- c("ggplot2", "ggthemes", "stringr", "rmarkdown")
+pcks <- c("ggplot2", "stringr")
 sapply(pcks, require, character.only = T)
 require(data.table)
 
 #Load .tsv files
-tax_1 <- as.data.frame(fread("qiime_analyses/AB_taxonomy.tsv"))
+
+tax_1 <- read.table(file = "qiime_analyses/AB_taxonomy.tsv",
+                    sep = "\t", header = TRUE)
+
 summary(tax_1)
 
 ##FORMATTING
