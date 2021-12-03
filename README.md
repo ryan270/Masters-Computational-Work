@@ -7,7 +7,7 @@ This repository is a collection of R, python, and linux scripts detailing microb
 ### Preliminary Analysis
 The majority of the prelim analysis was run through QIIME2: a Linux suite for analyzing microbial diversity. While QIIME2 does offer robust analytical tools for measuring microbial diversity, it's primary use for this project was to clean, trim, and organize raw NGS sequences. **qiime_pipeline_script** details the commands input into the suite organized in the general workflow of the pipeline. **export_names.R** and **meta_merge.R** standardizes the metadata, while the plot below confirms standardization of seq lengths.
 
-![](~/Desktop/abd_v14.png?raw=true "Title")
+![abd_v14](https://user-images.githubusercontent.com/32527761/144528680-042f3eec-8fc6-43c7-a293-2724b7f56445.png)
 
 ### NGS Analysis
 ### Statistical Analysis
