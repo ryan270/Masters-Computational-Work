@@ -1,14 +1,12 @@
 # Master's Project: NGS Analysis & Microbiome Classification
+![GitHub Dark](https://github.com/github-light.png#gh-dark-mode-only)
+![](https://www.flaticon.com/premium-icon/icons/svg/763/763180.svg)
 
 ## Summary
-This repository is a collection of R, python, and linux scripts detailing microbial diversity across three countries. Each script is highly commented, so observe the first few lines of each script for a detailed description of what it accomplishes.
+This repository is a collection of R, Python, and Linux scripts detailing microbial diversity on amphibian across three countries. These scripts include techniques like supervised machine learning, extensive visualization, and a multitude of statistical principles employed to measure diversity. Each script is highly commented for educational & collaborative purposes.In my opinion, the narrative is just as important as the code.
 
 ## Project Overview
 ### Preliminary Analysis
-The majority of the prelim analysis was run through QIIME2: a Linux suite for analyzing microbial diversity. While QIIME2 does offer robust analytical tools for measuring microbial diversity, it's primary use for this project was to clean, trim, and organize raw NGS sequences. **qiime_pipeline_script** details the commands input into the suite organized in the general workflow of the pipeline. **export_names.R** and **meta_merge.R** standardizes the metadata, while the plot below confirms standardization of seq lengths.
-
-![abd_v14](https://user-images.githubusercontent.com/32527761/144528680-042f3eec-8fc6-43c7-a293-2724b7f56445.png)
+The majority of the prelim analysis (cleaning, trimming, quality analysis, etc.) was run through QIIME2: a Linux suite for analyzing microbial diversity. **qiime_pipeline_script** details the commands input into the suite organized in the general workflow of the pipeline. **export_names.R** and **meta_merge.R** standardizes the metadata, while the plot below confirms standardization of seq lengths.
 
 ### NGS Analysis
-### Statistical Analysis
-These scripts use a combination of machine learning, and bioinformatics techniques including Principal Components Analysis, K-means, logisitic regression, PERMANOVA, and extensive visualizations to describe the genetic diversity of microbes residing on amphibians' skin.
