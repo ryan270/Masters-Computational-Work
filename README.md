@@ -1,6 +1,5 @@
 # Master's Project: NGS Analysis & Microbiome Classification
-![GitHub Dark](https://github.com/github-light.png#gh-dark-mode-only)
-![](https://www.flaticon.com/premium-icon/icons/svg/763/763180.svg)
+![](https://vectorified.com/images/dna-icon-png-17.png)
 
 ## Summary
 This repository is a collection of R, Python, and Linux scripts detailing microbial diversity on amphibian across three countries. These scripts include techniques like supervised machine learning, extensive visualization, and a multitude of statistical principles employed to measure diversity. Each script is highly commented for educational & collaborative purposes.In my opinion, the narrative is just as important as the code.
