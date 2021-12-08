@@ -26,13 +26,10 @@ visualizations.
 
 Below shows California defined by county regions and PCA plot of the microbial
 diversity on amphibians across entire sampling range.
-<p align="left">
+<p fload="left">
   <img src="https://github.com/ryan270/Masters-Computational-Work/files/7672428/cali_labels_2.pdf"
-  width="100" height="100"/>
-</p>
-
-<p align="right">
+  width="100" height="100" />
   <img src="https://github.com/ryan270/Masters-Computational-Work/files/7672437/the_plotv11.pdf"
-  width="100" height="100"/>
+  width="100" height="100" />
 </p>
 
