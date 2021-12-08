@@ -27,7 +27,7 @@ visualizations. Diversity analysis includes:
   color-blind-friendly color palette.
 The plots below indicate the sampling range across all four datasets, and a PCA plot showing the diversity on amphibians across entire sampling range.
 <p float="center">
-  <img src="https://user-images.githubusercontent.com/32527761/145129143-aafa360b-ae36-4e0e-ac0f-2165511b6ca0.png" width=450, height=400 />
-  <img src="https://user-images.githubusercontent.com/32527761/145129232-e9546a3f-df93-4303-954a-6898ed6c8edb.png" width=450, height=400 />
+  <img src="https://user-images.githubusercontent.com/32527761/145129143-aafa360b-ae36-4e0e-ac0f-2165511b6ca0.png" />
+  <img src="https://user-images.githubusercontent.com/32527761/145129232-e9546a3f-df93-4303-954a-6898ed6c8edb.png" />
 </p>
 
