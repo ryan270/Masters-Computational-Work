@@ -1,16 +1,10 @@
-###SEQUENCE QUALITY METRICS
-#This script analyzes the sequence lengths, features, and overall quality...
-#...of the four datasets used in the meta analysis
-
-
-##LOAD PACKAGES, DATA, AND DIRECTORY
-#Set Directory and Load required Packages
+# SEQ METRICS: Confirms/denies the uniformity of seq lengths across datasets
 setwd("~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/seq-metrics")
 pcks <- c("ggplot2", "wesanderson")
 sapply(pcks, require, character.only = T)
 metrics <- read.csv("meta_bioinf_metrics.csv")
 
-##SEQ METRICS
+# Plot
 ggplot(metrics, aes(x = Dataset, y = Features)) +
     geom_boxplot() +
     xlab("Dataset") +

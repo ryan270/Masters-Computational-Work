@@ -1,14 +1,6 @@
-###METADATA MERGE
-#This script will merge the mapping files from different datasets and write the
-#...output to working directory
-
-
-#-------------------------#
-##LOAD LIBRARIES & DATA
+# META MERGE: Merge mapping files from each dataset
 setwd("~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/")
 library(tidyverse)
-library(maps)
-
 abmap <- read.table(file = "AB_mapping_file.txt", sep = "\t", header = TRUE)
 mgmap <- read.table(file = "MG_Mapping_File_GUA_with_Bd.txt",
                     sep = "\t", header = TRUE)
@@ -16,9 +8,7 @@ spimap <- read.table(file = "SPI_mapping_file.txt", sep = "\t", header = TRUE)
 semap <- read.table(file = "SE_mapping_file.txt", sep = "\t", header = TRUE)
 
 
-#-------------------------#
-##FORMATTING
-#Remove all columns unique to one dataset
+## FORMAT COLUMNS ------
 names(abmap)[names(abmap) == "Habitat_Type"] <- "Habitat"
 abmap <- select(abmap, -c(Sample_Type, Higher_Clade))
 mgmap <- select(mgmap, -c(LinkerPrimerSequence, ReversePrimer, BarcodeSequence,
@@ -34,41 +24,43 @@ semap <- select(semap, -c(Sample_Name, month, frog_location, extraction_date,
                           frog_weight, Description, LinkerPrimerSequence,
                           lifestage, ZE, pit_tag_id, frog_svl, ReversePrimer,
                           gosner_stage, frog_sex, swabber_name, site_id))
-
-#Rename Columns to Match
 names(mgmap)[names(mgmap) == "County_Municipio"] <- "Site"
 names(spimap)[names(spimap) == "county"] <- "Site"
 names(spimap)[names(spimap) == "lat"] <- "Latitude"
 names(spimap)[names(spimap) == "long"] <- "Longitude"
 names(abmap)[names(abmap) == "Lower_Clade"] <- "subspecies"
 names(mgmap)[names(mgmap) == "Bd_Status"] <- "Bd_status"
-
-#Make Mex/Gua One Contiguous Region
 mgmap$State_Region <- "Central America"
-
-#Make lat/long numeric
 mgmap <- mgmap[-c(78:82), ]
 mgmap$Latitude <- as.numeric(mgmap$Latitude)
 mgmap$Longitude <- as.numeric(mgmap$Longitude)
+abmap$Dataset <- as.character("Bird et al., 2018", quote = FALSE)
+mgmap$Dataset <- as.character("Ellison et al., 2018", quote = FALSE)
+semap$Dataset <- as.character("Ellison et al., 2019", quote = FALSE)
+spimap$Dataset <- as.character("Prado-Irwin et al., 2017", quote = FALSE)
 
-##ORGANIZE TAXONOMY
-#create new columns with Taxonomic Rank
-abmap$Family = "Plethodontidae"
-abmap$Order = 'Salamander'
-spimap$Family = 'Plethodontidae'
-spimap$Order = 'Salamander'
-spimap$Genus = 'Ensatina'
-spimap$Species = 'Ensatina_eschscholtzii'
-semap$Species = 'Rana_sierrae'
-semap$Genus = 'Rana'
-semap$Family = 'Ranidae'
-semap$Order = 'Frog'
 
-# Reformat BD Status to Binary
-# Bird
+## TAXONOMY & BD ------
+abmap$Family <- "Plethodontidae"
+abmap$Order <- "Salamander"
+spimap$Family <- "Plethodontidae"
+spimap$Order <- "Salamander"
+spimap$Genus <- "Ensatina"
+spimap$Species <- "Ensatina_eschscholtzii"
+semap$Species <- "Rana_sierrae"
+semap$Genus <- "Rana"
+semap$Family <- "Ranidae"
+semap$Order <- "Frog"
+for (i in seq_len(nrow(mgmap))) {
+  if (mgmap$Order[i] == "Caudata") {
+    mgmap$Order[i] <- "Salamander"
+  } else if (mgmap$Order[i] == "Anura") {
+      mgmap$Order[i] <- "Frog"
+  }
+}
+
+# BD
 abmap$Bd_status <- 0
-
-# MG
 for (i in seq_len(nrow(mgmap))) {
          if (mgmap$Bd_status[i] == "Negative") {
              mgmap$Bd_status[i] <- 0
@@ -77,8 +69,6 @@ for (i in seq_len(nrow(mgmap))) {
          }
 }
 mgmap$Bd_status <- as.numeric(mgmap$Bd_status)
-
-# R Sierrae
 for (i in which(!is.na(semap$Bd_status) == TRUE)) {
          if (semap$Bd_status[i] == "Negative") {
              semap$Bd_status[i] <- 0
@@ -88,19 +78,8 @@ for (i in which(!is.na(semap$Bd_status) == TRUE)) {
 }
 semap$Bd_status <- as.numeric(semap$Bd_status)
 
-#Change Caudata & Anura to Frog and Salamander
-for (i in seq_len(nrow(mgmap))) {
-  if (mgmap$Order[i] == "Caudata") {
-    mgmap$Order[i] <- "Salamander"
-  } else if (mgmap$Order[i] == "Anura") {
-      mgmap$Order[i] <- "Frog"
-  }
-}
 
-
-#-------------------------#
-##DIVIDE CALIFORNIA INTO FOUR REGIONS
-#For Loops x Dataset
+## DIVIDE CALIFORNIA INTO FOUR REGIONS ------
 abmap$State_Region <- 0
 for (i in seq_len(nrow(abmap))) {
   if (abmap$Site[i] == "Alameda" || abmap$Site[i] == "Monterey") {
@@ -116,7 +95,6 @@ for (i in seq_len(nrow(abmap))) {
     abmap$State_Region[i] <- "Southern California"
   }
 }
-
 spimap$State_Region <- 0
 for (i in seq_len(nrow(spimap))) {
   if (spimap$Site[i] == "Alameda" || spimap$Site[i] ==
@@ -130,13 +108,10 @@ for (i in seq_len(nrow(spimap))) {
     spimap$State_Region[i] <- "Southern California"
   }
 }
-
 semap$State_Region <- "Sierra Nevada"
 
 
-#-------------------------#
-##ADD GPS
-#For Loop that adds randomized lat/long
+## GPS & COUNTY DATA ------
 for (i in seq_len(nrow(semap))) {
     if (i < 32) {
         semap$Latitude[i] <- 38.934
@@ -153,51 +128,31 @@ for (i in seq_len(nrow(semap))) {
     }
 }
 
-
-#-------------------------#
-##ADD COUNTY DATA
-#Lookup County
+#County
+library(maps)
 semap$Site <- map.where(database = "county",
                     semap$Longitude, semap$Latitude)
-
-
 abmap$Site <- map.where(database = "county",
                     abmap$Longitude, abmap$Latitude)
-
-#Remove California String
 semap$Site <- sub("...........", "", semap$Site)
 abmap$Site <- sub("...........", "", abmap$Site)
 
-#-------------------------#
-##ADD DATASET COLUMN
-#Add a column indicating what the dataset is
-abmap$Dataset <- as.character("Bird et al., 2018", quote = FALSE)
-mgmap$Dataset <- as.character("Ellison et al., 2018", quote = FALSE)
-semap$Dataset <- as.character("Ellison et al., 2019", quote = FALSE)
-spimap$Dataset <- as.character("Prado-Irwin et al., 2017", quote = FALSE)
 
-#-------------------------#
-##JOIN & EXPORT TABLES
-
-##JOIN TABLES
-meta_1 <- full_join(semap, mgmap, by = c('SampleID', 'Bd_status',
+## JOIN & EXPORT TABLES ------
+meta_1 <- full_join(semap, mgmap, by = c("SampleID", "Bd_status",
                                          "State_Region", "Site", "Dataset",
                                          "Longitude", "Latitude",
                                          "Family", "Genus", "Species",
                                          "Order"), copy = TRUE)
-
-meta_2 <- full_join(abmap, spimap, by = c('SampleID', 'Genus', 'Species',
-                                          'Family', 'Order', 'Site', 'Dataset',
-                                          'Latitude', 'Longitude', 'subspecies',
-                                           'State_Region'), copy = TRUE)
-
-meta_3 <- full_join(meta_1, meta_2, by = c('SampleID', 'Genus', 'Species',
-                                           'Family', 'Order', 'subspecies',
-                                           'Habitat', 'State_Region', 'Dataset',
-                                           'Latitude',
-                                           'Longitude', 'Site', 'Bd_status'), copy = TRUE)
-
-
-##EXPORT: write out table
-write.table(meta_3, file = 'merged_metadata.txt', append = FALSE, sep = '\t',
+meta_2 <- full_join(abmap, spimap, by = c("SampleID", "Genus", "Species",
+                                          "Family", "Order", "Site", "Dataset",
+                                          "Latitude", "Longitude", "subspecies",
+                                           "State_Region"), copy = TRUE)
+meta_3 <- full_join(meta_1, meta_2, by = c("SampleID", "Genus", "Species",
+                                           "Family", "Order", "subspecies",
+                                           "Habitat", "State_Region", "Dataset",
+                                           "Latitude",
+                                           "Longitude", "Site", "Bd_status"),
+                    copy = TRUE)
+write.table(meta_3, file = "merged_metadata.txt", append = FALSE, sep = "\t",
             row.names = FALSE, quote = FALSE, col.names = TRUE)
