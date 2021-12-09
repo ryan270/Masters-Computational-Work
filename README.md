@@ -4,7 +4,7 @@
   <img src="https://vectorified.com/images/dna-icon-png-17.png" />
 </p>
 
-This repository is a collection of scripts written to estimate microbial diversity on amphibian across three countries and measure the impact of microbial diversity on host health. These scripts include techniques like supervised machine learning, data visualization, and a multitude of statistical concepts employed to measure diversity. Each script is highly commented for educational & collaborative purposes. I believe the narrative is just as important as the code.
+This repository is a collection of scripts written to estimate microbial diversity on amphibian across three countries and measure the impact of microbial diversity on host health. These scripts include techniques like supervised machine learning, data visualization, and a multitude of statistical concepts employed to measure diversity.
 
 ## Project Overview
 ### Preliminary Analysis

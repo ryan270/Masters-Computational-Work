@@ -1,39 +1,25 @@
-### META ANALYSIS SCRIPT
-
-# This script will provide an in depth analysis of microbial data previously
-#...analyzed in QIIME2. This script will render multiple plots that will
-#...elucidate the change in diversity on amphibians between regions along the
-#...Pacific Coast.
-
-## LOAD PACKAGES, DATA, AND DIRECTORY
-# Set Directory and Load required Packages
+# META ANALYSIS SCRIPT: Conduct an in-depth analysis of microbial diversity
 setwd("~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/")
-project_packages <- c("phyloseq", "qiime2R", "grid", "gridExtra", "vegan",
-                      "ggmap", "ggbrace", "tidyverse")
+project_packages <- c("phyloseq", "grid", "gridExtra", "vegan", "tidyverse")
 sapply(project_packages, require, character.only = TRUE)
 
-#Create Phyloseq Object / Load data / Filter Ambiguous Orders
-amphib_obj <- subset_taxa(qza_to_phyloseq(features = "meta_c2_phy_table.qza",
+# Phyloseq object
+amphib_obj <- subset_taxa(qiime2R::qza_to_phyloseq(features = "meta_c2_phy_table.qza",
                                           taxonomy = "meta_taxonomy.qza",
                                           tree = "meta_rootd.qza",
                                           metadata = "merged_metadata.txt"),
                           !is.na(Order) & !Order %in% c("", "uncharacterized"))
 
-# Very Important
-royal <- c("#899DA4", "#9A8822", "#F5CDB4",
+royal <- c("#899DA4", "#9A8822", "#F5CDB4", # Very Important
                "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
-
-# Order Region Levels
 sample_data(amphib_obj)$State_Region <-
     factor(sample_data(amphib_obj)$State_Region,
               levels = c("Northern California", "Coastal California",
                          "Sierra Nevada", "Southern California",
                          "Central America"))
 
-#----------------------------------------------------------------#
-#----------------------------------------------------------------#
-## REMOVE OUTLIERS (Optional): Remove Frogs with very high levels of
-# Proteobacteria
+
+## REMOVE OUTLIERS (Optional) -------
 acts <- transform_sample_counts(amphib_obj, function(x) x / sum(x)) %>%
     psmelt()
 
@@ -43,19 +29,15 @@ outs <- acts$Sample[which(acts$Abundance > .8)] %>%
 nsmps <- setdiff(sample_names(amphib_obj), outs)
 amphib_obj <- prune_samples(nsmps, amphib_obj)
 
-#----------------------------------------------------------------#
-## TAXA BARPLOT: Displays only the top OTUS for Each Region
+
+## TAXA BARPLOT -------
 # Create Database of OTU"s w/ 1% Category
 txs <- amphib_obj %>%
     transform_sample_counts(function(x) x / sum(x)) %>%
     tax_glom(taxrank = "Phylum") %>%
     psmelt() %>%
     mutate(Prbd = as.numemric(0))
-
-# Make a 1% category of Proteobacterial Abundance
 txs$Phylum <- as.character(txs$Phylum)
-
-# Re-Order Levels
 txs$Phylum <- factor(txs$Phylum,
                           levels = c("Acidobacteria", "Actinobacteria",
                                      "Armatimonadetes", "Bacteroidetes",
@@ -69,7 +51,7 @@ txs$Phylum <- factor(txs$Phylum,
                                      "WS3", "[Thermi]",
                                      "<1% Abundance"))
 
-#Plot Relative Abundances
+# Plot: Taxa
 abs <- ggplot(txs, aes(x = Sample, y = Abundance, fill = Phylum)) +
     facet_wrap(~State_Region, scales = "free_x", nrow = 3) +
     geom_bar(aes(), stat = "identity", position = "stack") +
@@ -94,8 +76,6 @@ abs <- ggplot(txs, aes(x = Sample, y = Abundance, fill = Phylum)) +
           panel.grid.major = element_blank()) +
     guides(fill = guide_legend(nrow = 6, title.position = "top"),
        theme(element_text(family = "Georgia")))
-
-#View Plot
 abs
 
 #Fill Label Matches the Region Color
@@ -110,9 +90,8 @@ for (i in c(32, 34, 35, 36, 37)) {
 }
 grid.draw(g)
 
-#----------------------------------------------------------------#
-##ALPHA DIVERSITY: plot and compare species richness and evenness
-#Calculate Evenness & Create DF with Evenness
+
+## ALPHA DIVERSITY -------
 alphas <- estimate_richness(amphib_obj,
                             measure = c("Chao1", "Shannon", "Simpson"))
 alphas$Evenness <- 0
@@ -123,20 +102,17 @@ for (i in seq_len(alphas)) {
   alphas$Evenness[i] <- H[i] / S[i]
 }
 
-#ANOVA Assumption Tests
+# Stats: Alpha Diversity
 asa <- merge(alphas, sample_data(amphib_obj), by = 0, all = TRUE)
 shapiro.test(alphas$Shannon) #FAILED: p is 0.02106
 bartlett.test(Evenness ~ State_Region, data = asa) #FAILED: p is 0.0049
-
-#PERMANOVA Richness Comparison
-#Not even: p = 0.001
+# Reject Null: p = .0001
 adonis(Evenness ~ State_Region, data = asa, permutations = 999)
 
-#Plot Facet-Wrapped Boxpolot of Richness and Evenness
+# Plot: Alpha Diversity
 alpha2 <- tidyr::gather(data.frame(alphas, sample_data(amphib_obj)),
                         key = "Measure",
                         value = "Value", Shannon, Chao1, Simpson, Evenness)
-
 ggplot(data = alpha2, aes(x = State_Region, y = Value, color = State_Region)) +
   labs(color = "State Region", x = "State Region") +
   facet_wrap(~Measure, scale = "free", nrow = 1) +
@@ -156,38 +132,41 @@ ggplot(data = alpha2, aes(x = State_Region, y = Value, color = State_Region)) +
         panel.background = element_rect(fill = "gray98"),
         axis.title = element_text(size = 16, family = "Georgia"))
 
-#----------------------------------------------------------------#
-##BETA DIVERSITY AND DISTANCE: calculate PCA"s with multiple models
-#Includes -- The Plot --
-#Omit user-defined distance methods and unapplicable methods
+
+## BETA DIVERSITY -------
+# Stats: Beta Diversity
+md <- data.frame(sample_data(amphib_obj))
+perm <- adonis(phyloseq::distance(amphib_obj, method = "wunifrac") ~ Family,
+       data = md, permutations = 999)
+print(perm) # Reject Null
+permutest(betadisper(phyloseq::distance(amphib_obj, method = "wunifrac"),
+                     md$Order), pairwise = TRUE) # Sierras are different
+
+# Prep for Plots
 dist_models <- unlist(distanceMethodList)[-c(2, 3, 9, 12, 16, 20,
                                              27, 29, 35, 42, 43, 47)]
-
-#Vectorize Distance models list
 pca_list <- vector("list", length(dist_models))
 names(pca_list) <- dist_models
-
-#For loop that loops through all of the distance models and calculates them
 for (i in dist_models) {
   iDist <- phyloseq::distance(amphib_obj, method = i)
   iMDS  <- ordinate(amphib_obj, "MDS", distance = iDist)
-  #Make plot
+  # Make plot
   p <- NULL
   p <- plot_ordination(amphib_obj, iMDS, color = "State_Region",
                        shape = "Order") +
     ggtitle(paste("Distance Method ", i, sep = "")) +
     geom_point(size = 4) +
     theme(plot.title = element_text(size = 12, family = "Georgia"))
-  #Save the graphic to file.
+  # Save the graphic to file.
   pca_list[[i]] <- p
 }
-
-#Merges all of the distances from all methods into a dataframe
 adm <- plyr::ldply(pca_list, function(x) x$data)
 names(adm)[1] <- "distance"
-print(pca_list[["unifrac"]])
+# Print Individual plot: print(pca_list[["unifrac"]])
+ds <- phyloseq::distance(amphib_obj, method = "unifrac")
+ord <- ordinate(amphib_obj, "MDS", distance = ds)
 
-#Plots Methods Confirming Distinctions
+# Plot: Grid of PCA's
 ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order)) +
   geom_point(size = 1.5, alpha = 0.8) +
   scale_color_manual(values = royal) +
@@ -203,18 +182,13 @@ ggplot(adm, aes(Axis.1, Axis.2, color = State_Region, shape = Order)) +
         axis.line = element_line(colour = "black", size = 0.2),
         panel.background = element_rect(fill = "gray98"))
 
-#Use to Calculate Distances without For Loop on the Fly
-#Unweighted Unifrac -- The Plot
-ds <- phyloseq::distance(amphib_obj, method = "unifrac")
-ord <- ordinate(amphib_obj, "MDS", distance = ds)
-
-#Plot
+# Plot: PCA Plot of the Amphibian Beta Diversty (Main Plot)
 plot_ordination(amphib_obj, ord, color = "State_Region", shape = "Order") +
   scale_color_manual(values = c("#899DA4", "#FDDDA0", "#EE6A50", "#9A8822",
                                "#F8AFA8")) +
   geom_point(size = 5) +
-  #annotate(geom = "text", x = 0, y = 0.25, label = "R. sierrae", size = 6)+
-  #stat_ellipse(type = "norm", level = 0.99)+
+  annotate(geom = "text", x = 0, y = 0.25, label = "R. sierrae", size = 6)+
+  stat_ellipse(type = "norm", level = 0.99)+
   labs(shape = "Host", color = "Region") +
   theme(panel.border = element_blank(),
         plot.title = element_text(size = 30, face = "bold"),
@@ -228,14 +202,15 @@ plot_ordination(amphib_obj, ord, color = "State_Region", shape = "Order") +
         axis.line = element_line(colour = "black", size = 0.2),
         panel.background = element_rect(fill = "gray98"))
 
-#----------------------------------------------------------------#
-##MAP THE SAMPLES
-#Map Mex/Gua Samples
+
+## MAP THE SAMPLES -------
+library("ggmap")
 mgm <- get_stamenmap(bbox = c(bottom = 14.418492, left = -92.8479,
                               top = 16.098598, right = -90.227808),
                      maptype = "toner-background", zoom = 9,
                      crop = TRUE, color = "bw")
 
+# Plot: Mexico/Guatemala Border
 ggmap(mgm) +
     geom_point(data = sample_data(amphib_obj), color = "#F8AFA8",
                aes(x = Longitude, y = Latitude, shape = Order),
@@ -249,12 +224,9 @@ ggmap(mgm) +
     geom_text(label = "Guatemala", nudge_x = 1.55, nudge_y = 1.4, size = 12,
               family = "Georgia")
 
-#Map California Regions
-#Load California Map Data
+# Map California Regions
 cali <- subset(map_data("state"), region == "california")
 cac <- subset(map_data("county"), region == "california")
-
-#For Loop that Divides California Counties into Regions
 cac$zone <- NA
 for (i in seq_len(cac)) {
         srrs <- c("placer", "el dorado", "madera")
@@ -273,8 +245,10 @@ for (i in seq_len(cac)) {
             cac$zone[i] <- "Northern California"
         }
 }
+detach("package:ggmap")
 
-#Plot Map of California
+# Plot: Map of California
+library("ggbrace")
 ggplot(data = cali, mapping = aes(x = long, y = lat, group = group,
                                   fill = "white")) +
     coord_fixed(1.3) +
@@ -310,36 +284,32 @@ Ellison et al., 2018"),
           legend.text = element_text(size = 12, family = "Georgia"),
           legend.title = element_text(size = 18, family = "Georgia",
                                       face = "bold"))
+detach("package:ggbrace")
 
-#----------------------------------------------------------------#
-##CLUSTER ANALYSIS
-#Computing the Gap Statistic: this tells the most likely number of clusters
-#Ordinate Data
+
+## CLUSTER ANALYSIS -------
 exord_amp <- ordinate(amphib_obj, method = "MDS", distance = "bray")
-
-#Compute Gap Statistic
+# Gap Statistic
 library(cluster)
-#creates f(x) topartitions data into "k" clusters
 pam1 <- function(x, k) {
     list(cluster = cluster::pam(x, k, cluster.only = TRUE))
 }
 x <- phyloseq:::scores.pcoa(exord_amp, display = "sites")
 gskmn <- cluster::clusGap(x[, 1:2], FUN = pam1, K.max = 6, B = 50)
-gskmn #shows that I have 6 clusters in dataset
+gskmn # shows 6 clusters
+detach("package:cluster")
 
-#----------------------------------------------------------------#
-##OTU ANALYSIS: Calculate the Difference in OTU Abundance Between Regions
-#Convert physeq object to DESeq object
+## OTU ANALYSIS -------
+# Need to reinstall Deseq
+# library("DESeq")
 da <- phyloseq_to_deseq2(amphib_obj, ~ State_Region)
 gm_mean <- function(x, na.rm = TRUE) {
   exp(sum(log(x[x > 0]), na.rm = na.rm) / length(x))
 }
-
 geo_means <- apply(counts(da), 1, gm_mean)
 da <- estimateSizeFactors(da, geo_means = geo_means)
 da <- DESeq(da, fitType = "local")
-
-#For Loop that Compares the Abundances of OTU"s Between Regions
+# detach("package:DESeq")
 for (i in c(1, 2, 4, 5)) {
   altrg <- levels(sample_data(amphib_obj)$State_Region)[i]
   res <- results(da, contrast =
@@ -349,7 +319,6 @@ for (i in c(1, 2, 4, 5)) {
   res_sig$Comparison <- as.factor(paste0("Sierra Nevada vs ", altrg))
   assign(paste0("res_sig", i), cbind(as(res_sig, "data.frame"),
         as(tax_table(amphib_obj)[rownames(res_sig), ], "matrix")))
-  #Merge & Delete Tables
   while (i == 5) {
       otu_res <- Reduce(function(x, y) merge(x, y, all = TRUE),
                         list(res_sig1, res_sig2, res_sig4, res_sig5))
@@ -358,7 +327,7 @@ for (i in c(1, 2, 4, 5)) {
   }
 }
 
-#Plot OTU Abundances
+#Plot: OTU Abundances
 otup <- ggplot(otu_res, aes(x = Order, y = log2FoldChange)) +
     geom_col(aes(fill = Phylum), width = 1) +
     scale_fill_manual(values = c("#E1BD6D", "#74A089", "#EABE94", "#FFC307",
@@ -377,8 +346,6 @@ theme(plot.title = element_text(family = "Georgia"),
       legend.text = element_text(size = 9),
       legend.key.size = unit(0.3, "cm")) +
 guides(fill = guide_legend(nrow = 6))
-
-#Arrange Plot Titles by Region Color
 h <- ggplot_gtable(ggplot_build(otup))
 stripr <- which(grepl("strip-t", h$layout$name))
 flls <- c("#9A8822", "#F8AFA8",  "#899DA4", "#FDDDA0")
@@ -388,19 +355,4 @@ for (i in stripr) {
     h$grobs[[i]]$grobs[[1]]$children[[j]]$gp$fill <- flls[k]
     k <- k + 1
 }
-
 grid.draw(h)
-
-#----------------------------------------------------------------#
-##PERMANOVA: Confirms there are Diversity differences between the Groups
-md <- data.frame(sample_data(amphib_obj))
-perm <- adonis(phyloseq::distance(amphib_obj, method = "wunifrac") ~ Family,
-       data = md, permutations = 999)
-print(perm)
-
-#Pairwise PERMANOVA: Pairwise analysis of Diversity Differences
-permutest(betadisper(phyloseq::distance(amphib_obj, method = "wunifrac"),
-                     md$Order), pairwise = TRUE)
-
-#----------------------------------------------------------------#
-#-----------------------END--------------------------------------#
