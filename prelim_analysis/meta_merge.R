@@ -7,8 +7,7 @@ mgmap <- read.table(file = "MG_Mapping_File_GUA_with_Bd.txt",
 spimap <- read.table(file = "SPI_mapping_file.txt", sep = "\t", header = TRUE)
 semap <- read.table(file = "SE_mapping_file.txt", sep = "\t", header = TRUE)
 
-
-## FORMAT COLUMNS ------
+# FORMAT COLUMNS ------
 names(abmap)[names(abmap) == "Habitat_Type"] <- "Habitat"
 abmap <- select(abmap, -c(Sample_Type, Higher_Clade))
 mgmap <- select(mgmap, -c(LinkerPrimerSequence, ReversePrimer, BarcodeSequence,
@@ -39,8 +38,7 @@ mgmap$Dataset <- as.character("Ellison et al., 2018", quote = FALSE)
 semap$Dataset <- as.character("Ellison et al., 2019", quote = FALSE)
 spimap$Dataset <- as.character("Prado-Irwin et al., 2017", quote = FALSE)
 
-
-## TAXONOMY & BD ------
+# TAXONOMY & BD ------
 abmap$Family <- "Plethodontidae"
 abmap$Order <- "Salamander"
 spimap$Family <- "Plethodontidae"
@@ -78,8 +76,7 @@ for (i in which(!is.na(semap$Bd_status) == TRUE)) {
 }
 semap$Bd_status <- as.numeric(semap$Bd_status)
 
-
-## DIVIDE CALIFORNIA INTO FOUR REGIONS ------
+# DIVIDE CALIFORNIA INTO FOUR REGIONS ------
 abmap$State_Region <- 0
 for (i in seq_len(nrow(abmap))) {
   if (abmap$Site[i] == "Alameda" || abmap$Site[i] == "Monterey") {
@@ -110,8 +107,7 @@ for (i in seq_len(nrow(spimap))) {
 }
 semap$State_Region <- "Sierra Nevada"
 
-
-## GPS & COUNTY DATA ------
+# GPS & COUNTY DATA ------
 for (i in seq_len(nrow(semap))) {
     if (i < 32) {
         semap$Latitude[i] <- 38.934
@@ -137,8 +133,7 @@ abmap$Site <- map.where(database = "county",
 semap$Site <- sub("...........", "", semap$Site)
 abmap$Site <- sub("...........", "", abmap$Site)
 
-
-## JOIN & EXPORT TABLES ------
+# JOIN & EXPORT TABLES ------
 meta_1 <- full_join(semap, mgmap, by = c("SampleID", "Bd_status",
                                          "State_Region", "Site", "Dataset",
                                          "Longitude", "Latitude",

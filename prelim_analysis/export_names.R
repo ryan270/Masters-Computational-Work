@@ -1,4 +1,4 @@
-# EXPORT NAMES: Create a summarized table of the metadata
+## EXPORT NAMES: Create a summarized table of the metadata
 setwd("~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/")
 ampm <- read.table(file = "merged_metadata.txt", sep = "\t", header = TRUE)
 
@@ -37,7 +37,7 @@ spi_d <- data.frame(Paper = "Prado-Irwin et al., 2017",
                     Region = spi_reg,
                     N = spi_sam)
 
-# Re-work AB dataset solution
+# AB dataset
 ab_spp <- unique(ampm$Species[which(ampm$Dataset ==
                                     "Bird et al., 2018")])
 ab_reg <- unique(ampm$State_Region[which(ampm$Dataset == "Bird et al., 2018")])
