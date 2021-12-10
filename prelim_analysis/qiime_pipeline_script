@@ -1,6 +1,6 @@
 ## QIIME PIPELINE
 
-## IMPORTING ------
+## {{{ IMPORTING
 qiime tools import
 --type 'SampleData[PairedEndSequencesWithQuality]'
 --input-path [manifest_file_path]
@@ -11,15 +11,15 @@ qiime tools import
 qiime tools import
 --input-path [data]
 --output-path [data.qza]
---type 'SampleData[Sequences]'
+--type 'SampleData[Sequences]' # }}}
 
-## VISUALIZING ------
+## {{{ VISUALIZING
 qiime feature-table tabulate
 --i-table table.qza
 --o-visualization table.qzv
---m-sample-metadata-file metadata.tsv
+--m-sample-metadata-file metadata.tsv # }}}
 
-## DEREP/DENOISE SEQUENCES ------
+## {{{ DEREP/DENOISE SEQUENCES
 qiime dada2 denoise-paired
 --i-demultiplexed-seqs [demux_seqs.qza]
 --p-trunc-len-f 0 #use demux_seqs.qzv to get number
@@ -40,9 +40,9 @@ qiime deblur denoise-16S
 qiime vsearch dereplicate-sequences
  --i-sequences [seqs.qza]
  --o-dereplicated-table [derep_table.qza]
- --o-dereplicated-sequences [derep_seqs.qza]
+ --o-dereplicated-sequences [derep_seqs.qza] # }}}
 
-## FILTERING DATA.1 (only for fasta) ------
+## {{{ FILTERING DATA.1 (only for fasta)
 qiime feature-table filter-features
 --i-table [derep_table].qza
 --p-min-frequency 7 #ARBITRARY NUMBER could go higher or lower
@@ -65,9 +65,9 @@ qiime feature-table filter-samples
 --i-table [x_table.qza]
 --m-metadata-file [mapping.txt]
 --p-no-exclude-ids
---o-filtered-table [x_meta_filtered_table.qza]
+--o-filtered-table [x_meta_filtered_table.qza] # }}}
 
-## MERGE DATASETS ------
+## {{{ MERGE DATASETS
 qiime feature-table merge
 --i-tables [x1_table.qza]
 --i-tables [x2_table.qza]
@@ -85,9 +85,9 @@ qiime tools import
 qiime feature-table filter-seqs
 --i-table [x_table.qza]
 --i-data [derep_seqs.qza]
---o-filtered-data [x_seqs.qza]
+--o-filtered-data [x_seqs.qza] # }}}
 
-## ASSIGN TAXONMY ------
+## {{{ ASSIGN TAXONMY
 qiime tools import
 --input-path [99_otus.fasta]
 --output-path [ref_seqs.qza]
@@ -139,9 +139,9 @@ qiime taxa filter-table
 qiime feature-table filter-seqs
 --i-table [x_table.qza]
 --i-data [derep_seqs.qza]
---o-filtered-data [x_seqs.qza]
+--o-filtered-data [x_seqs.qza] # }}}
 
-## FILTERING DATA.2 (all data) -----
+## {{{ FILTERING DATA.2 (all data)
 #Contigency Filtering
 qiime feature-table filter-features
 --i-table [x_filtered_table.qza]
@@ -167,4 +167,4 @@ qiime diversity core-metrics-phylogentic
 --i-table [table.qza]
 --p-sampling-depth x #look at feature_table.qzv to determine sampling depth
 --m-metadata-file [metadata.txt]
---output-dir core-metrics-results
+--output-dir core-metrics-results # }}}
