@@ -1,27 +1,18 @@
-### PCA PLOT SCRIPTS
-#this document contains the code that will plot alpha and beta diversity
-#....in microbial analyses
-
-##LOAD LIBRARY & DATA
-#Set directory & load necessary packages
+## PCA PLOT SCRIPTS: A script just for PCA plots
 setwd("~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/
       meta-metrics/")
 pcks <- c("ggplot2", "qiime2R", "dplyr", "vegan")
 sapply(pcks, require, character.only = TRUE)
 require(data.table)
-
-#Load data
 meta_map <- read.table("../merged_metadata.txt", sep = "\t", header = TRUE)
 meta_tree <- read_qza("AB_rootd.qza")
 shannon <- read_qza("shannon_vector.qza")
 unweighted_pco <- read_qza("unweighted_unifrac_pcoa_results.qza")
 weighted_pco <- read_qza("weighted_unifrac_pcoa_results.qza")
 
-##ALPHA DIVERSITY
-#Change Alpha Diversity Dataset
+## ALPHA DIVERSITY -------
 alpha_frame <- shannon$data %>% as.data.frame() %>% rownames_to_column()
 colnames(alpha_frame)[1] <- "SampleID"
-#Combine metadata
 alpha_meta <- left_join(alpha_frame, meta_map, by = "SampleID")
 
 #Alpha Diversity Plot
@@ -36,19 +27,15 @@ ggplot(alpha_meta, aes(x = State_Region, y = shannon)) +
         plot.subtitle = element_text(size = 22, face = "italic"),
         axis.title = element_text(size = 16))
 
-##BETA DIVERSITY
-#Merge metadata and results w/ PCA table
+## BETA DIVERSITY -------
 beta_frame <- as.data.frame(unweighted_pco$data$Vectors) %>%
  left_join(meta_map, by = "SampleID") #combine metadata
-
-#Weighted
-beta2_frame <- as.data.frame(weighted_pco$data$Vectors) %>%
+beta2_frame <- as.data.frame(weighted_pco$data$Vectors) %>% #weighted
   left_join(meta_map, by = "SampleID", copy = TRUE)
-
-#Beta Diversity Plot
 royal <- c("#899DA4", "#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#EE6A50",
            "#74A089")
 
+#Beta Diversity Plot
 ggplot(beta_frame, aes(x = PC2, y = PC1, color = State_Region)) +
   geom_point(aes(shape = Order), size = 4) +
   xlab(paste("PC1: ",

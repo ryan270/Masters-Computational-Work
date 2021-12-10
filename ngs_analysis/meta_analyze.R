@@ -1,4 +1,4 @@
-# META ANALYSIS SCRIPT: Conduct an in-depth analysis of microbial diversity
+## META ANALYSIS SCRIPT: Conduct an in-depth analysis of microbial diversity
 setwd("~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/")
 project_packages <- c("phyloseq", "grid", "gridExtra", "vegan", "tidyverse")
 sapply(project_packages, require, character.only = TRUE)
@@ -9,7 +9,6 @@ amphib_obj <- subset_taxa(qiime2R::qza_to_phyloseq(features = "meta_c2_phy_table
                                           tree = "meta_rootd.qza",
                                           metadata = "merged_metadata.txt"),
                           !is.na(Order) & !Order %in% c("", "uncharacterized"))
-
 royal <- c("#899DA4", "#9A8822", "#F5CDB4", # Very Important
                "#F8AFA8", "#FDDDA0", "#EE6A50", "#74A089")
 sample_data(amphib_obj)$State_Region <-
@@ -18,17 +17,13 @@ sample_data(amphib_obj)$State_Region <-
                          "Sierra Nevada", "Southern California",
                          "Central America"))
 
-
 ## REMOVE OUTLIERS (Optional) -------
 acts <- transform_sample_counts(amphib_obj, function(x) x / sum(x)) %>%
     psmelt()
-
 outs <- acts$Sample[which(acts$Abundance > .8)] %>%
     append(c("SE108", "SE107", "SE110", "SE37", "SE39", "SE44", "SE72"))
-
 nsmps <- setdiff(sample_names(amphib_obj), outs)
 amphib_obj <- prune_samples(nsmps, amphib_obj)
-
 
 ## TAXA BARPLOT -------
 # Create Database of OTU"s w/ 1% Category
@@ -90,7 +85,6 @@ for (i in c(32, 34, 35, 36, 37)) {
 }
 grid.draw(g)
 
-
 ## ALPHA DIVERSITY -------
 alphas <- estimate_richness(amphib_obj,
                             measure = c("Chao1", "Shannon", "Simpson"))
@@ -131,7 +125,6 @@ ggplot(data = alpha2, aes(x = State_Region, y = Value, color = State_Region)) +
                                         colour = "gray80"),
         panel.background = element_rect(fill = "gray98"),
         axis.title = element_text(size = 16, family = "Georgia"))
-
 
 ## BETA DIVERSITY -------
 # Stats: Beta Diversity
@@ -201,7 +194,6 @@ plot_ordination(amphib_obj, ord, color = "State_Region", shape = "Order") +
                                         colour = "gray75"),
         axis.line = element_line(colour = "black", size = 0.2),
         panel.background = element_rect(fill = "gray98"))
-
 
 ## MAP THE SAMPLES -------
 library("ggmap")
@@ -285,7 +277,6 @@ Ellison et al., 2018"),
           legend.title = element_text(size = 18, family = "Georgia",
                                       face = "bold"))
 detach("package:ggbrace")
-
 
 ## CLUSTER ANALYSIS -------
 exord_amp <- ordinate(amphib_obj, method = "MDS", distance = "bray")
