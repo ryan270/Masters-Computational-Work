@@ -37,10 +37,14 @@ spi_d = pd.DataFrame({'Paper': 'Prado-Irwin et al., 2017',
 ab = ampm.loc[ampm['Dataset'] == 'Bird et al., 2018']
 ab_spp = ab['Species'].unique()
 ab_reg = ab['State_Region'].unique()
-
-# Return the amount of species found in each region
 ab_sam = []
 for reg in ab_reg:
     k = ab.loc[ab['State_Region'] == reg]
     for j in ab_spp:
         ab_sam.append(len(k.loc[ab['Species'] == j]))
+from itertools import repeat
+ab_d = pd.DataFrame({'Paper': 'Bird et al., 2018',
+    'Species': np.concatenate(list(repeat(ab_spp, 4))),
+    'Region': np.concatenate(list(repeat(ab_reg, 4))),
+    'N': ab_sam}).sort_values(by=['Region'], ascending=True)
+
