@@ -34,3 +34,13 @@ spi_d = pd.DataFrame({'Paper': 'Prado-Irwin et al., 2017',
     'N': spi_sam})
 
 # AB Dataset
+ab = ampm.loc[ampm['Dataset'] == 'Bird et al., 2018']
+ab_spp = ab['Species'].unique()
+ab_reg = ab['State_Region'].unique()
+
+# Return the amount of species found in each region
+ab_sam = []
+for reg in ab_reg:
+    k = ab.loc[ab['State_Region'] == reg]
+    for j in ab_spp:
+        ab_sam.append(len(k.loc[ab['Species'] == j]))
