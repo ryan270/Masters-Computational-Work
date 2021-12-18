@@ -1,5 +1,6 @@
 ## {{{ META MERGE: Merge mapping files from each dataset
 import pandas as pd
+import numpy as np
 abmap = pd.read_table("~/Documents/amphibian_meta_project/meta_analysis/" +
         "qiime_analyses/AB_mapping_file.txt", sep='\t')
 mgmap = pd.read_table('~/Documents/amphibian_meta_project/meta_analysis/' +
@@ -47,7 +48,33 @@ semap['Species'] = "Rana_sierrae"
 semap['Genus'] = "Rana"
 semap['Family'] = "Ranidae"
 semap['Order'] = "Frog"
-for i in mgmap['Order']:
-    if i == "Caudata":
-        i = "Salamander"
-    else: i = "Frog" # }}}
+mgmap['Order'] = mgmap['Order'].apply(lambda x: 'Salamander' if x=='Caudata'
+        else 'Frog')
+abmap['Bd_status'] = abmap['Bd_status'].apply(lambda x: 0 if x=='Negative'
+        else 1)
+semap['Bd_status'] = semap['Bd_status'].apply(lambda x: 0 if x=='Negative'
+        else 1) # }}}
+
+## {{{ DIVIDE CALIFORNIA INTO FOUR REGIONS
+abmap['State_Region'] = np.nan
+abmap.loc[(abmap['Site']=='Alameda') | (abmap['Site']=='Monterey'),
+    'State_Region'] = 'Coastal California'
+abmap.loc[(abmap['Site']=='Jackson_State_Forest') |
+        (abmap['Site']=='Siskiyou') | (abmap['Site']=='Shasta') |
+        (abmap['Site']=='Humboldt') | (abmap['Site']=='Leggett'),
+        'State_Region'] = 'Northern California'
+abmap.loc[(abmap['Site']=='Sierra_National_Forest'),
+        'State_Region'] = 'Sierra Nevada'
+abmap['State_Region'] = abmap['State_Region'].replace(
+        np.nan, 'Southern California')
+
+spimap['State_Region'] = np.nan
+spimap.loc[(spimap['county']=='Alameda') | (spimap['county']=='Santa.Cruz') |
+        (spimap['pop']=='north.bay'), 'State_Region'] = 'Coastal California'
+spimap.loc[(spimap['county']=='Madera'), 'State_Region'] = 'Sierra Nevada'
+spimap.loc[(spimap['pop']=='annadel'), 'State_Region'] = 'Northern California'
+spimap['State_Region'] = spimap['State_Region'].replace(
+        np.nan, 'Southern California')
+spimap['State_Region'].value_counts()
+
+semap['State_Region'] = 'Sierra Nevada' # }}}
