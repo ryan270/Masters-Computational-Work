@@ -1,4 +1,5 @@
 ## {{{ META ANALYSIS SCRIPT: Conduct an in-depth analysis of microbial diversity
+# Task: Map samples directly onto california map. Disregard counties
 setwd("~/Documents/amphibian_meta_project/meta_analysis/qiime_analyses/")
 project_packages <- c("phyloseq", "grid", "gridExtra", "vegan", "tidyverse")
 sapply(project_packages, require, character.only = TRUE)

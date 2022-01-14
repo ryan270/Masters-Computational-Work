@@ -1,6 +1,10 @@
 ## {{{ META MERGE: Merge mapping files from each dataset
+# Task: Need to separate Sierra Nevada into highland & lowland
+# Task: use the triangle and dot for frogs and salamanders in the California and the central america maps, then remove the legend in the central america map and add text to the figure legend that describes the triangles and points as such
+# Task: Remove County Data
 import pandas as pd
 import numpy as np
+
 abmap = pd.read_table("~/Documents/amphibian_meta_project/meta_analysis/" +
         "qiime_analyses/AB_mapping_file.txt", sep='\t')
 mgmap = pd.read_table('~/Documents/amphibian_meta_project/meta_analysis/' +
@@ -67,14 +71,21 @@ abmap.loc[(abmap['Site']=='Sierra_National_Forest'),
         'State_Region'] = 'Sierra Nevada'
 abmap['State_Region'] = abmap['State_Region'].replace(
         np.nan, 'Southern California')
-
 spimap['State_Region'] = np.nan
-spimap.loc[(spimap['county']=='Alameda') | (spimap['county']=='Santa.Cruz') |
+spimap.loc[(spimap['Site']=='Alameda') | (spimap['Site']=='Santa.Cruz') |
         (spimap['pop']=='north.bay'), 'State_Region'] = 'Coastal California'
-spimap.loc[(spimap['county']=='Madera'), 'State_Region'] = 'Sierra Nevada'
+spimap.loc[(spimap['Site']=='Madera'), 'State_Region'] = 'Sierra Nevada'
 spimap.loc[(spimap['pop']=='annadel'), 'State_Region'] = 'Northern California'
 spimap['State_Region'] = spimap['State_Region'].replace(
         np.nan, 'Southern California')
 spimap['State_Region'].value_counts()
-
 semap['State_Region'] = 'Sierra Nevada' # }}}
+
+## {{{ JOIN & EXPORT TABLES ------
+pd.merge(semap, mgmap, on=["SampleID", "Bd_status", "State_Region", "Dataset",
+     "Longitude", "Latitude", "Family", "Genus", "Species", "Order"], how='full')
+
+meta_3.to_csv('~/Documents/amphibian_meta_project/meta_analysis/' +
+        'qiime_analyses/merged_metadata.txt', sep="\t", header=True,
+        Index=False)
+# }}}
