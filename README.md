@@ -1,4 +1,4 @@
-# Master's Project: NGS Analysis & Microbiome Classification
+# NGS Analysis & Microbiome Classification
 
 <p align="center">
   <img src="https://vectorified.com/images/dna-icon-png-17.png" />
